@@ -9,15 +9,13 @@
 defineProps({
   value: {
     type: String,
-    required: true
+    required: true,
   },
   label: {
     type: String,
-    required: true
+    required: true,
   },
 });
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -1,45 +1,48 @@
 <template>
   <div class="flex flex-col px-4 py-2">
     <span class="font-light text-neutral-600 text-sm">{{ label }}</span>
-    <div class="relative overflow-hidden h-6"> <!-- Use Tailwind for layout -->
-      <span class="inline-block relative transition-transform duration-800 ease-out" ref="odometer">
+    <div class="relative overflow-hidden h-6">
+      <!-- Use Tailwind for layout -->
+      <span
+        class="inline-block relative transition-transform duration-800 ease-out"
+        ref="odometer"
+      >
         {{ animatedValue }} {{ units }}
       </span>
     </div>
   </div>
 </template>
 
-
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch } from "vue";
 
 const props = defineProps({
   value: {
     type: [String, Number],
-    required: true
+    required: true,
   },
   label: {
     type: String,
-    required: true
+    required: true,
   },
   units: {
     type: String,
-    default: ''
-  }
+    default: "",
+  },
 });
 
-const animatedValue = ref(props.value);  // The displayed value with animation
+const animatedValue = ref(props.value); // The displayed value with animation
 
 // Watch for changes in the value prop and animate the change
-watch(() => props.value, (newValue) => {
-  // Update the animated value after detecting the change
-  requestAnimationFrame(() => {
-    animatedValue.value = newValue;
-  });
-});
+watch(
+  () => props.value,
+  (newValue) => {
+    // Update the animated value after detecting the change
+    requestAnimationFrame(() => {
+      animatedValue.value = newValue;
+    });
+  },
+);
 </script>
 
-
-<style scoped>
-
-</style>
+<style scoped></style>
