@@ -4,7 +4,7 @@ import axios from "axios";
 let aircraft = [];
 let selectedAircraft = reactive({
   lat: 0,
-  lng: 0,
+  lon: 0,
   hex: "",
   type: "",
   flight: "",
@@ -109,7 +109,7 @@ const useAircraft = () => {
   };
 
   const getRouteSet = (flight, lat, lon) => {
-    const response = axios.post('https://adsb.im/api/0/routeset', {
+    const response = axios.post('https://api.adsb.lol/api/0/routeset', {
       planes: [
         {
           callsign: flight.replace(/\s+/g, ""),

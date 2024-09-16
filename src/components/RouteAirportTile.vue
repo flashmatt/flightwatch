@@ -1,7 +1,8 @@
 <template>
   <div class="flex flex-col">
-    <span class="text-4xl font-extrabold">{{ value }}</span>
-    <span class="font-light">{{ label }}</span>
+    <span class="font-light text-sm">{{ label }}</span>
+    <span class="text-3xl font-extrabold">{{ value }}</span>
+
   </div>
 </template>
 

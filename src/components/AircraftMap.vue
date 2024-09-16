@@ -231,7 +231,7 @@ const updateAircraftData = (newData) => {
 
       // Update the rotation of the Icon
       if (style && style.getImage()) {
-        style.getImage().setRotation((aircraft.track * Math.PI) / 180);
+        style.getImage().setRotation((aircraft.trueHeading * Math.PI) / 180);
       }
 
       // Apply the updated style

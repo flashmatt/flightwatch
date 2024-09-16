@@ -6,17 +6,17 @@
     <div class="flex flex-col pb-2 overflow-y-scroll">
       <planespotters-photo :icao-code="aircraft.hex || ''" />
       <div
-        class="grid grid-cols-3 divide-x divide-solid divide-neutral-200 bg-white sticky top-0 mb-4 shadow-lg"
+        class="grid grid-cols-3 divide-x divide-solid divide-neutral-200 bg-white sticky top-0 mb-4 shadow-lg z-10"
       >
         <airline-logo :icao-code="aircraft.hex" />
         <base-info-tile :value="aircraft.flight" label="Callsign" />
         <base-info-tile :value="aircraft.registration" label="Registration" />
       </div>
       <div class="px-4 flex flex-col gap-4 pb-2">
-        <aircraft-route :route="aircraft.airports" />
+        <aircraft-route :route="aircraft.airports" :current-location="{lat:aircraft.lat, lon:aircraft.lon}" />
         <aircraft-info-card title="Live Info" icon="lucide:radio-tower">
           <base-stats-tile
-            :value="aircraft.altBaro"
+            :value="aircraft.altGeom"
             label="Altitude"
             units="ft"
             class="border-b border-neutral-300 border-r"
@@ -28,7 +28,7 @@
             class="border-b border-neutral-300"
           />
           <base-stats-tile
-            :value="aircraft.track"
+            :value="aircraft.trueHeading"
             label="Heading"
             units="°"
             class="border-r border-neutral-300 border-b"
@@ -133,34 +133,34 @@
         >
           <base-stats-tile
             :value="aircraft.altBaro"
-            label="Barometric Altitude"
+            label="Barometric Alt."
             units="ft"
             class="border-b border-neutral-300 border-r"
           />
           <base-stats-tile
             :value="aircraft.altGeom"
-            label="Geometric Altitude (WGS84)"
+            label="Geometric Alt (WGS84)"
             units="ft"
-            class="border-b border-neutral-300"
+            class="border-b border-neutral-300 border-b"
           />
           <base-stats-tile
             :value="aircraft.geomRate || aircraft.baroRate"
             label="Vertical Speed"
             units="ft/min"
-            class="border-r border-neutral-300"
+            class="border-r border-neutral-300 border-b"
           />
-          <base-stats-tile :value="aircraft.navQnh" label="QNH" units="hPa" />
+          <base-stats-tile :value="aircraft.navQnh" label="QNH" units="hPa" class="border-b border-neutral-300"/>
           <base-stats-tile
             :value="aircraft.navAltitudeMcp"
-            label="Selected Altitude (MCP)"
+            label="Selected Alt (MCP)"
             units="ft"
-            class="border-b border-neutral-300"
+            class="border-r border-neutral-300"
           />
           <base-stats-tile
             :value="aircraft.navAltitudeFms"
             label="Selected Altitude (FMS)"
             units="ft"
-            class="border-b border-neutral-300"
+            class=""
           />
         </aircraft-info-card>
 
@@ -187,23 +187,15 @@
             :value="aircraft.trackRate"
             label="Track Rate"
             units="°/s"
-            class="border-r border-neutral-300"
+            class="border-b border-neutral-300"
           />
-          <base-stats-tile :value="aircraft.roll" label="Roll" units="°" />
-        </aircraft-info-card>
-
-        <aircraft-info-card title="Automation" icon="mdi:autorenew">
-          <base-stats-tile
-            :value="aircraft.navModes"
-            label="Automation Modes"
-            class="border-b border-neutral-300 border-r"
-          />
+          <base-stats-tile :value="aircraft.roll" label="Roll" units="°" class="border-r border-neutral-300" />
         </aircraft-info-card>
 
         <aircraft-info-card title="Navigation & Integrity" icon="mdi:gps-fixed">
           <base-stats-tile
             :value="aircraft.nic"
-            label="NIC (Navigation Integrity Category)"
+            label="NIC (Nav Integrity Cat)"
             class="border-b border-neutral-300 border-r"
           />
           <base-stats-tile
@@ -220,52 +212,23 @@
           <base-stats-tile
             :value="aircraft.nacV"
             label="NAC Velocity"
-            class="border-r border-neutral-300"
-          />
-          <base-stats-tile
-            :value="aircraft.sil"
-            label="SIL (Source Integrity Level)"
-          />
-          <base-stats-tile :value="aircraft.silType" label="SIL Type" />
-          <base-stats-tile
-            :value="aircraft.gva"
-            label="Geometric Vertical Accuracy"
-            units="m"
-          />
-          <base-stats-tile
-            :value="aircraft.sda"
-            label="System Design Assurance"
-          />
-        </aircraft-info-card>
-
-        <aircraft-info-card title="Last Known Position" icon="mdi:map-marker">
-          <base-stats-tile
-            :value="aircraft.lastPosition.lat"
-            label="Last Known Latitude"
-            units="°"
-            class="border-b border-neutral-300 border-r"
-          />
-          <base-stats-tile
-            :value="aircraft.lastPosition.lon"
-            label="Last Known Longitude"
-            units="°"
             class="border-b border-neutral-300"
           />
           <base-stats-tile
-            :value="aircraft.lastPosition.nic"
-            label="Last Known NIC"
-            class="border-r border-neutral-300 border-b"
+            :value="aircraft.sil"
+            label="SIL (Src Integrity Lvl)"
+            class="border-b border-r border-neutral-300"
           />
+          <base-stats-tile :value="aircraft.silType" label="SIL Type" class="border-b border-neutral-300" />
           <base-stats-tile
-            :value="aircraft.lastPosition.rc"
-            label="Last Known RC"
+            :value="aircraft.gva"
+            label="Geometric Vert Acc."
             units="m"
             class="border-r border-neutral-300"
           />
           <base-stats-tile
-            :value="aircraft.lastPosition.seen_pos"
-            label="Last Seen Position"
-            units="s"
+            :value="aircraft.sda"
+            label="System Design Assur."
           />
         </aircraft-info-card>
 
@@ -301,13 +264,13 @@
           />
           <base-stats-tile
             :value="aircraft.spi"
-            label="SPI (Special Position Identification)"
+            label="SPI (Special Pos Ident)"
             class="border-b border-neutral-300"
           />
           <base-stats-tile
             :value="aircraft.acasRa"
             label="ACAS RA"
-            class="border-r border-neutral-300 border-b"
+            class="border-r border-neutral-300"
           />
           <base-stats-tile
             :value="aircraft.gpsOkBefore"
