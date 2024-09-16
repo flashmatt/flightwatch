@@ -5,16 +5,16 @@
 <script setup>
 import { onMounted, onBeforeUnmount, ref } from "vue";
 import "ol/ol.css";
-import { Map, View } from "ol";
+import { Map, View, Feature } from "ol";
 import { Tile as TileLayer } from "ol/layer";
-import { fromLonLat } from "ol/proj";
+import {fromLonLat, toLonLat} from "ol/proj";
 import axios from "axios";
-import { Icon, Style } from "ol/style";
+import { Icon, Style, Circle as CircleStyle, Fill, Stroke } from "ol/style";
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
-import Feature from "ol/Feature";
-import Point from "ol/geom/Point";
+import { Point } from "ol/geom";
 import { XYZ } from "ol/source";
+import Geolocation from 'ol/Geolocation';
 import useSprites from "../composables/useSprites";
 import useAircraft from "../composables/useAircraft";
 
@@ -28,6 +28,7 @@ const { selectAircraft, isAircraftSelected, getSelectedAircraft:selectedAircraft
 
 onMounted(() => {
   initializeMap();
+  initializeGeolocation();
   startDataPolling();
 });
 
@@ -37,9 +38,14 @@ onBeforeUnmount(() => {
   }
 });
 
+const currentCenter = ref({
+  lat: 54.576459,
+  lon: -1.246257,
+});
+
 const initializeMap = () => {
-  const centerLat = 54.576459;
-  const centerLon = -1.246257;
+  const initialCenterLat = 54.576459;
+  const initialCenterLon = -1.246257;
 
   map.value = new Map({
     target: "map",
@@ -53,7 +59,7 @@ const initializeMap = () => {
       }),
     ],
     view: new View({
-      center: fromLonLat([centerLon, centerLat]),
+      center: fromLonLat([initialCenterLon, initialCenterLat]),
       zoom: 8,
     }),
   });
@@ -65,6 +71,13 @@ const initializeMap = () => {
 
   map.value.addLayer(vectorLayer);
   map.value.on('click', handleMapClick);
+
+  map.value.getView().on('change:center', () => {
+    const view = map.value.getView();
+    const center = toLonLat(view.getCenter());
+    const [lon, lat] = center;
+    currentCenter.value = { lat, lon };
+  });
 };
 
 const handleMapClick = (event) => {
@@ -87,10 +100,9 @@ const startDataPolling = () => {
 
 const fetchAdsbData = async () => {
   try {
-    const centerLat = 54.576459;
-    const centerLon = -1.246257;
+    const { lat, lon } = currentCenter.value;
     const response = await axios.get(
-      `/api/v2/lat/${centerLat}/lon/${centerLon}/dist/100`,
+      `/api/v2/lat/${lat}/lon/${lon}/dist/250`,
     );
 
     const newData = processApiResponse(response.data);
@@ -213,7 +225,6 @@ const processApiResponse = (data) => {
       }));
 };
 
-
 const updateAircraftData = (newData) => {
   const newAircraftHexes = new Set();
 
@@ -274,6 +285,39 @@ const updateAircraftData = (newData) => {
     }
   }
 };
+
+const userLocation = ref(null);
+let userLocationFeature = null;
+let geolocation = null;
+
+const initializeGeolocation = () => {
+  geolocation = new Geolocation({
+    tracking: true,
+    projection: map.value.getView().getProjection(),
+  });
+
+  geolocation.on('change:position', () => {
+    const coordinates = geolocation.getPosition();
+    if (coordinates) {
+      if (!userLocationFeature) {
+        userLocationFeature = new Feature(new Point(coordinates));
+        userLocationFeature.setStyle(new Style({
+          image: new CircleStyle({
+            radius: 6,
+            fill: new Fill({ color: '#3399CC' }),
+            stroke: new Stroke({ color: '#fff', width: 2 }),
+          }),
+        }));
+        vectorSource.addFeature(userLocationFeature);
+      } else {
+        userLocationFeature.getGeometry().setCoordinates(coordinates);
+      }
+    }
+  });
+};
+
+
+
 
 </script>
 
