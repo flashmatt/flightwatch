@@ -2,7 +2,6 @@
   <div class="flex flex-col">
     <span class="font-light text-sm">{{ label }}</span>
     <span class="text-3xl font-extrabold">{{ value }}</span>
-
   </div>
 </template>
 

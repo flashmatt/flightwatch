@@ -68,29 +68,29 @@ let selectedAircraft = reactive({
   gpsOkBefore: 0,
   airline_code: "",
   airports: [
-      {
-        alt_feet:0,
-        alt_meters:0,
-        countryiso2:"",
-        iata:"",
-        icao:"",
-        lat:0,
-        location:"",
-        lon:0,
-        name:""
-      },
     {
-      alt_feet:0,
-      alt_meters:0,
-      countryiso2:"",
-      iata:"",
-      icao:"",
-      lat:0,
-      location:"",
-      lon:0,
-      name:""
+      alt_feet: 0,
+      alt_meters: 0,
+      countryiso2: "",
+      iata: "",
+      icao: "",
+      lat: 0,
+      location: "",
+      lon: 0,
+      name: "",
     },
-  ]
+    {
+      alt_feet: 0,
+      alt_meters: 0,
+      countryiso2: "",
+      iata: "",
+      icao: "",
+      lat: 0,
+      location: "",
+      lon: 0,
+      name: "",
+    },
+  ],
 });
 
 const aircraftSelected = ref(false);
@@ -109,30 +109,32 @@ const useAircraft = () => {
   };
 
   const getRouteSet = (flight, lat, lon) => {
-    const response = axios.post('https://api.adsb.lol/api/0/routeset', {
-      planes: [
-        {
-          callsign: flight.replace(/\s+/g, ""),
-          lat: lat,
-          lng: lon
-        }
-      ]
-    }).then((response) => {
-      selectedAircraft.airports = response.data[0]._airports;
-      selectedAircraft.airline_code = response.data[0].airline_code;
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
+    axios
+      .post("https://api.adsb.lol/api/0/routeset", {
+        planes: [
+          {
+            callsign: flight.replace(/\s+/g, ""),
+            lat: lat,
+            lng: lon,
+          },
+        ],
+      })
+      .then((response) => {
+        selectedAircraft.airports = response.data[0]._airports;
+        selectedAircraft.airline_code = response.data[0].airline_code;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const getSelectedAircraft = computed(() => {
     return selectedAircraft;
   });
 
   const selectAircraft = (aircraft) => {
-
     updateSelectedAircraft(aircraft);
-    getRouteSet(aircraft.flight, aircraft.lat, aircraft.lon)
+    getRouteSet(aircraft.flight, aircraft.lat, aircraft.lon);
     aircraftSelected.value = true;
   };
 

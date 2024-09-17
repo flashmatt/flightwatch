@@ -13,7 +13,10 @@
         <base-info-tile :value="aircraft.registration" label="Registration" />
       </div>
       <div class="px-4 flex flex-col gap-4 pb-2">
-        <aircraft-route :route="aircraft.airports" :current-location="{lat:aircraft.lat, lon:aircraft.lon}" />
+        <aircraft-route
+          :route="aircraft.airports"
+          :current-location="{ lat: aircraft.lat, lon: aircraft.lon }"
+        />
         <aircraft-info-card title="Live Info" icon="lucide:radio-tower">
           <base-stats-tile
             :value="aircraft.altGeom"
@@ -149,7 +152,12 @@
             units="ft/min"
             class="border-r border-neutral-300 border-b"
           />
-          <base-stats-tile :value="aircraft.navQnh" label="QNH" units="hPa" class="border-b border-neutral-300"/>
+          <base-stats-tile
+            :value="aircraft.navQnh"
+            label="QNH"
+            units="hPa"
+            class="border-b border-neutral-300"
+          />
           <base-stats-tile
             :value="aircraft.navAltitudeMcp"
             label="Selected Alt (MCP)"
@@ -189,7 +197,12 @@
             units="°/s"
             class="border-b border-neutral-300"
           />
-          <base-stats-tile :value="aircraft.roll" label="Roll" units="°" class="border-r border-neutral-300" />
+          <base-stats-tile
+            :value="aircraft.roll"
+            label="Roll"
+            units="°"
+            class="border-r border-neutral-300"
+          />
         </aircraft-info-card>
 
         <aircraft-info-card title="Navigation & Integrity" icon="mdi:gps-fixed">
@@ -219,17 +232,18 @@
             label="SIL (Src Integrity Lvl)"
             class="border-b border-r border-neutral-300"
           />
-          <base-stats-tile :value="aircraft.silType" label="SIL Type" class="border-b border-neutral-300" />
+          <base-stats-tile
+            :value="aircraft.silType"
+            label="SIL Type"
+            class="border-b border-neutral-300"
+          />
           <base-stats-tile
             :value="aircraft.gva"
             label="Geometric Vert Acc."
             units="m"
             class="border-r border-neutral-300"
           />
-          <base-stats-tile
-            :value="aircraft.sda"
-            label="System Design Assur."
-          />
+          <base-stats-tile :value="aircraft.sda" label="System Design Assur." />
         </aircraft-info-card>
 
         <aircraft-info-card
