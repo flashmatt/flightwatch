@@ -14,7 +14,8 @@
       </div>
       <div class="px-4 flex flex-col gap-4 pb-2">
         <aircraft-route
-          :route="aircraft.airports"
+          v-if="aircraft.route && aircraft.route.length > 1"
+          :route="aircraft.route"
           :current-location="{ lat: aircraft.lat, lon: aircraft.lon }"
         />
         <aircraft-info-card title="Live Info" icon="lucide:radio-tower">
