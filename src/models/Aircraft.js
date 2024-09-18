@@ -113,6 +113,6 @@ export default class Aircraft {
   }
 
   getRotation() {
-    return (this.trueHeading * Math.PI) / 180;
+    return (this.track * Math.PI) / 180;
   }
 }
