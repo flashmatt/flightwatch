@@ -1,6 +1,7 @@
 <template>
-  <div id="map" class="w-screen h-screen"></div>
+  <div id="map" class="relative z-0 h-screen w-screen"/>
 </template>
+
 
 <script setup>
 import { onMounted, onBeforeUnmount } from "vue";
@@ -81,4 +82,8 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.ol-zoom {
+  right: 8px
+}
+</style>

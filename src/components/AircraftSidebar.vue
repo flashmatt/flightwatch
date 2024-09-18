@@ -1,7 +1,8 @@
 <template>
-  <aside
+  <transition name="slide-fade">
+    <aside
     v-if="isAircraftSelected"
-    class="absolute left-6 top-6 flex flex-col w-96 h-[94vh] mb-12 bg-neutral-200 rounded-2xl overflow-hidden shadow-2xl"
+    class="absolute left-6 top-20 flex flex-col w-96 h-[89vh] mb-12 bg-neutral-200 rounded-2xl overflow-hidden shadow-2xl"
   >
     <div class="flex flex-col pb-2 overflow-y-scroll">
       <planespotters-photo :icao-code="aircraft.hex || ''" />
@@ -296,6 +297,7 @@
       </div>
     </div>
   </aside>
+  </transition>
 </template>
 
 <script setup>
@@ -312,4 +314,18 @@ import useAircraft from "../composables/useAircraft.js";
 const { getSelectedAircraft: aircraft, isAircraftSelected } = useAircraft();
 </script>
 
-<style scoped></style>
+<style scoped>
+.slide-fade-enter-active {
+  transition: all 0.3s ease-in;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+</style>
