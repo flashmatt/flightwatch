@@ -1,6 +1,6 @@
 <template>
   <aside
-    v-if="aircraftSelected"
+    v-if="isAircraftSelected"
     class="absolute left-6 top-6 flex flex-col w-96 h-[94vh] mb-12 bg-neutral-200 rounded-2xl overflow-hidden shadow-2xl"
   >
     <div class="flex flex-col pb-2 overflow-y-scroll">
@@ -14,8 +14,7 @@
       </div>
       <div class="px-4 flex flex-col gap-4 pb-2">
         <aircraft-route
-          v-if="aircraft.route && aircraft.route.length > 1"
-          :route="aircraft.route"
+          :route="aircraft.airports"
           :current-location="{ lat: aircraft.lat, lon: aircraft.lon }"
         />
         <aircraft-info-card title="Live Info" icon="lucide:radio-tower">
@@ -145,7 +144,7 @@
             :value="aircraft.altGeom"
             label="Geometric Alt (WGS84)"
             units="ft"
-            class="border-b border-neutral-300"
+            class="border-b border-neutral-300 border-b"
           />
           <base-stats-tile
             :value="aircraft.geomRate || aircraft.baroRate"
@@ -309,7 +308,7 @@ import ManufacturerLogo from "./ManufacturerLogo.vue";
 import CountryFlag from "./CountryFlag.vue";
 import useAircraft from "../composables/useAircraft.js";
 
-const { selectedAircraft: aircraft, aircraftSelected } = useAircraft();
+const { getSelectedAircraft: aircraft, isAircraftSelected } = useAircraft();
 </script>
 
 <style scoped></style>

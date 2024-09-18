@@ -20,8 +20,8 @@ const { createOrUpdateAircraftFeature, removeStaleAircraftFeatures } =
 
 const {
   selectAircraft,
-  aircraftSelected,
-  selectedAircraft,
+  isAircraftSelected,
+  getSelectedAircraft: selectedAircraft,
   updateSelectedAircraft,
   deselectAircraft,
 } = useAircraft();
@@ -33,7 +33,10 @@ const updateAircraftData = (newData) => {
     newAircraftHexes.add(aircraft.hex);
     createOrUpdateAircraftFeature(aircraft);
 
-    if (aircraftSelected.value && aircraft.hex === selectedAircraft.hex) {
+    if (
+      isAircraftSelected.value &&
+      aircraft.hex === selectedAircraft.value.hex
+    ) {
       updateSelectedAircraft(aircraft);
     }
   });

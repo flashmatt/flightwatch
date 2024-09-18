@@ -16,9 +16,10 @@ export default function useAircraftFeatures(vectorSource) {
       const geometry = new Point(fromLonLat([aircraft.lon, aircraft.lat]));
       feature.setGeometry(geometry);
 
+      // Update style rotation
       const style = feature.getStyle();
       if (style && style.getImage()) {
-        style.getImage().setRotation(aircraft.rotation);
+        style.getImage().setRotation((aircraft.trueHeading * Math.PI) / 180);
       }
       feature.setStyle(style);
     } else {
@@ -33,7 +34,7 @@ export default function useAircraftFeatures(vectorSource) {
         image: new Icon({
           src: getSvgFromAircraft(aircraft.aircraftType),
           scale: 1, // Adjust scale as needed
-          rotation: aircraft.rotation
+          rotation: (aircraft.track * Math.PI) / 180, // Rotation in radians
         }),
       });
 
