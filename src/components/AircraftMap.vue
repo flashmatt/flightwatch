@@ -1,5 +1,8 @@
 <template>
-  <div id="map" class="relative z-0 h-screen w-screen"/>
+  <div id="map" class="relative z-0 h-screen w-screen">
+
+    <map-controls/>
+  </div>
 </template>
 
 
@@ -11,6 +14,7 @@ import useGeolocation from "../composables/useGeolocation";
 import useAdsbData from "../composables/useAdsbData";
 import useAircraftFeatures from "../composables/useAircraftFeatures";
 import useAircraft from "../composables/useAircraft";
+import MapControls from "./MapControls.vue";
 
 const { map, initializeMap, currentCenter, vectorSource } = useMap();
 

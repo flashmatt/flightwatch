@@ -6,8 +6,9 @@ import { fromLonLat, toLonLat } from "ol/proj";
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
 
+const map = ref(null);
 export default function useMap() {
-  const map = ref(null);
+
   const currentCenter = ref({ lat: 0, lon: 0 });
 
   const vectorSource = new VectorSource();
@@ -19,6 +20,7 @@ export default function useMap() {
     return new Promise((resolve) => {
       map.value = new Map({
         target: targetId,
+        controls: [],
         layers: [
           new TileLayer({
             source: new XYZ({
@@ -48,10 +50,28 @@ export default function useMap() {
     });
   };
 
+  const setCenter = (position) => {
+    const view = map.value.getView();
+    view.animate({ center: position });
+  }
+
+  const zoomIn = () => {
+    const view = map.value.getView();
+    view.animate({zoom: view. getZoom() + 1});
+  };
+
+  const zoomOut = () => {
+    const view = map.value.getView();
+    view.animate({zoom: view.getZoom() - 1});
+  };
+
   return {
     map,
     initializeMap,
     currentCenter,
     vectorSource,
+    setCenter,
+    zoomIn,
+    zoomOut,
   };
 }

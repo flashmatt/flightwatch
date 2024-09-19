@@ -1,13 +1,14 @@
-import { ref } from "vue";
+
 import Geolocation from "ol/Geolocation";
 import { Feature } from "ol";
 import { Point } from "ol/geom";
 import { Style, Circle as CircleStyle, Fill, Stroke } from "ol/style";
+import { computed } from "vue";
 
+let geolocation = null;
 export default function useGeolocation(map, vectorSource) {
-  const userLocation = ref(null);
+
   let userLocationFeature = null;
-  let geolocation = null;
 
   const initializeGeolocation = () => {
     geolocation = new Geolocation({
@@ -37,8 +38,12 @@ export default function useGeolocation(map, vectorSource) {
     });
   };
 
+  const getGeolocation = computed(() => {
+    return geolocation;
+  });
+
   return {
     initializeGeolocation,
-    userLocation,
+    getGeolocation
   };
 }
