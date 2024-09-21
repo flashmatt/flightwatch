@@ -1,19 +1,19 @@
 import { computed, reactive, ref } from "vue";
 import axios from "axios";
 
-let selectedAircraft = reactive({
-  airline_code:'',
-  route:[]
-});
+let selectedAircraft = ref({});
 
 const aircraftSelected = ref(false);
 
+let routeSet = ref([]);
 const useAircraft = () => {
   const updateSelectedAircraft = (newSelectedAircraft) => {
-    Object.assign(selectedAircraft, { ...newSelectedAircraft });
+    selectedAircraft.value = newSelectedAircraft;
   };
 
-  const getRouteSet = (flight, lat, lon) => {
+
+
+  const loadRouteSet = (flight, lat, lon) => {
     axios
       .post(`https://api.adsb.lol/api/0/routeset`, {
         planes: [
@@ -25,8 +25,8 @@ const useAircraft = () => {
         ],
       })
       .then((response) => {
-        selectedAircraft.route = response.data[0]._airports;
-        selectedAircraft.airline_code = response.data[0].airline_code;
+        // Update the .value property of routeSet
+        routeSet.value = response.data[0]._airports;
       })
       .catch((error) => {
         console.log(error);
@@ -34,24 +34,28 @@ const useAircraft = () => {
   };
 
   const getSelectedAircraft = computed(() => {
-    return selectedAircraft;
+    return selectedAircraft.value;
   });
 
   const selectAircraft = (aircraft) => {
     updateSelectedAircraft(aircraft);
-    getRouteSet(aircraft.flight, aircraft.lat, aircraft.lon);
+    loadRouteSet(aircraft.flight, aircraft.lat, aircraft.lon);
     aircraftSelected.value = true;
   };
 
   const deselectAircraft = () => {
     aircraftSelected.value = false;
-    Object.keys(selectedAircraft).forEach((key) => {
-      delete selectedAircraft[key];
-    });
+    selectedAircraft.value = {};
+    // Reset the .value property of routeSet
+    routeSet.value = [];
   };
 
   const isAircraftSelected = computed(() => {
     return aircraftSelected.value;
+  });
+
+  const getRouteSet = computed(() => {
+    return routeSet.value;
   });
 
   return {
@@ -60,6 +64,7 @@ const useAircraft = () => {
     selectAircraft,
     deselectAircraft,
     isAircraftSelected,
+    getRouteSet,
   };
 };
 

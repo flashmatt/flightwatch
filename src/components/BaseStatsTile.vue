@@ -18,7 +18,7 @@ import { ref, watch } from "vue";
 
 const props = defineProps({
   value: {
-    type: [String, Number],
+    type: [String, Number, null, Boolean],
     required: true,
   },
   label: {

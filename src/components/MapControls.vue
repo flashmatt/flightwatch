@@ -41,7 +41,6 @@ const { getGeolocation } = useGeolocation();
 
 const setToUserLocation = () => {
   let lonlat = getGeolocation.value.getPosition();
-  console.log(lonlat);
   setCenter(lonlat);
 };
 

@@ -13,8 +13,8 @@ export default class Aircraft {
     this.registration = aircraft.r ?? "Unknown Registration";
     this.aircraftType = aircraft.t ?? "Unknown Aircraft";
 
-    this.altBaro = aircraft.alt_baro ?? 0;
-    this.altGeom = aircraft.alt_geom ?? 0;
+    this.altBaro = aircraft.alt_baro ?? null;
+    this.altGeom = aircraft.alt_geom ?? null;
 
     this.gs = aircraft.gs ?? 0;
     this.ias = aircraft.ias ?? 0;
@@ -102,6 +102,9 @@ export default class Aircraft {
 
     this.acasRa = aircraft.acas_ra ?? "None";
     this.gpsOkBefore = aircraft.gpsOkBefore ?? 0;
+
+    this.airline_code = '';
+    this.route = [];
   }
 
   getPosition() {
@@ -115,4 +118,12 @@ export default class Aircraft {
   getRotation() {
     return (this.trueHeading * Math.PI) / 180;
   }
+
+  getAltitude() {
+    if (this.altGeom !== null && this.altGeom !== undefined) {
+      return this.altGeom;
+    }
+    return this.altBaro;
+  }
+
 }

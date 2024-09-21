@@ -15,13 +15,13 @@
       </div>
       <div class="px-4 flex flex-col gap-4 pb-2">
         <aircraft-route
-          v-if="aircraft.route && aircraft.route.length > 1"
-          :route="aircraft.route"
+          v-if="routeSet.length > 1"
+          :route="routeSet"
           :current-location="{ lat: aircraft.lat, lon: aircraft.lon }"
         />
         <aircraft-info-card title="Live Info" icon="lucide:radio-tower">
           <base-stats-tile
-            :value="aircraft.altGeom"
+            :value="aircraft.getAltitude()"
             label="Altitude"
             units="ft"
             class="border-b border-neutral-300 border-r"
@@ -146,7 +146,7 @@
             :value="aircraft.altGeom"
             label="Geometric Alt (WGS84)"
             units="ft"
-            class="border-b border-neutral-300 border-b"
+            class="border-b border-neutral-300"
           />
           <base-stats-tile
             :value="aircraft.geomRate || aircraft.baroRate"
@@ -311,7 +311,7 @@ import ManufacturerLogo from "./ManufacturerLogo.vue";
 import CountryFlag from "./CountryFlag.vue";
 import useAircraft from "../composables/useAircraft.js";
 
-const { getSelectedAircraft: aircraft, isAircraftSelected } = useAircraft();
+const { getSelectedAircraft: aircraft, isAircraftSelected, getRouteSet: routeSet } = useAircraft();
 </script>
 
 <style scoped>
