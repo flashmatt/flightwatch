@@ -12,24 +12,15 @@ import "ol/ol.css";
 import useMap from "../composables/useMap";
 import useGeolocation from "../composables/useGeolocation";
 import useAdsbData from "../composables/useAdsbData";
-import useAircraftFeatures from "../composables/useAircraftFeatures";
-import useAircraft from "../composables/useAircraft";
+import useAircraftData from "../composables/useAircraftData.js";
 import MapControls from "./MapControls.vue";
 
 const { map, initializeMap, currentCenter, vectorSource } = useMap();
 
 const { initializeGeolocation } = useGeolocation(map, vectorSource);
 
-const { createOrUpdateAircraftFeature, removeStaleAircraftFeatures } =
-  useAircraftFeatures(vectorSource);
-
-const {
-  selectAircraft,
-  isAircraftSelected,
-  getSelectedAircraft: selectedAircraft,
-  updateSelectedAircraft,
-  deselectAircraft,
-} = useAircraft();
+const { createOrUpdateAircraftFeature, removeStaleAircraftFeatures, selectAircraft, deselectAircraft  } =
+  useAircraftData(vectorSource);
 
 const updateAircraftData = (newData) => {
   const newAircraftHexes = new Set();
@@ -37,13 +28,6 @@ const updateAircraftData = (newData) => {
   newData.forEach((aircraft) => {
     newAircraftHexes.add(aircraft.hex);
     createOrUpdateAircraftFeature(aircraft);
-
-    if (
-      isAircraftSelected.value &&
-      aircraft.hex === selectedAircraft.value.hex
-    ) {
-      updateSelectedAircraft(aircraft);
-    }
   });
 
   removeStaleAircraftFeatures(newAircraftHexes);

@@ -1,13 +1,18 @@
-// useAircraftFeatures.js
+import { computed, reactive, ref } from "vue";
+import axios from "axios";
 import { Feature } from "ol";
 import { Point } from "ol/geom";
 import { Style, Icon } from "ol/style";
 import { fromLonLat } from "ol/proj";
 import useSprites from "../composables/useSprites";
 
-export default function useAircraftFeatures(vectorSource) {
-  const aircraftFeatures = {};
+const selectedAircraft = ref({});
+const aircraftSelected = ref(false);
+const routeSet = ref([]);
+export default function useAircraftData(vectorSource) {
   const { getSvgFromAircraft } = useSprites();
+  const aircraftFeatures = {};
+
 
   const createOrUpdateAircraftFeature = (aircraft) => {
     if (aircraftFeatures[aircraft.hex]) {
@@ -22,6 +27,10 @@ export default function useAircraftFeatures(vectorSource) {
         style.getImage().setRotation((aircraft.trueHeading * Math.PI) / 180);
       }
       feature.setStyle(style);
+
+      if (aircraftSelected.value && selectedAircraft.value.hex === aircraft.hex) {
+        selectedAircraft.value = aircraft;
+      }
     } else {
       // Create new feature
       const feature = new Feature({
@@ -33,8 +42,8 @@ export default function useAircraftFeatures(vectorSource) {
       const iconStyle = new Style({
         image: new Icon({
           src: getSvgFromAircraft(aircraft.aircraftType),
-          scale: 1, // Adjust scale as needed
-          rotation: (aircraft.track * Math.PI) / 180, // Rotation in radians
+          scale: 1,
+          rotation: (aircraft.track * Math.PI) / 180,
         }),
       });
 
@@ -54,8 +63,48 @@ export default function useAircraftFeatures(vectorSource) {
     }
   };
 
+  const loadRouteSet = (flight, lat, lon) => {
+    axios
+      .post(`https://api.adsb.lol/api/0/routeset`, {
+        planes: [
+          {
+            callsign: flight.replace(/\s+/g, ""),
+            lat: lat,
+            lng: lon,
+          },
+        ],
+      })
+      .then((response) => {
+        routeSet.value = response.data[0]._airports;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const selectAircraft = (aircraft) => {
+    selectedAircraft.value = aircraft;
+    loadRouteSet(aircraft.flight, aircraft.lat, aircraft.lon);
+    aircraftSelected.value = true;
+  };
+
+  const deselectAircraft = () => {
+    aircraftSelected.value = false;
+    selectedAircraft.value = {};
+    routeSet.value = [];
+  };
+
+  const isAircraftSelected = computed(() => aircraftSelected.value);
+  const getSelectedAircraft = computed(() => selectedAircraft.value);
+  const getRouteSet = computed(() => routeSet.value);
+
   return {
     createOrUpdateAircraftFeature,
     removeStaleAircraftFeatures,
+    selectAircraft,
+    deselectAircraft,
+    isAircraftSelected,
+    getSelectedAircraft,
+    getRouteSet,
   };
 }

@@ -309,9 +309,9 @@ import AircraftInfoCard from "./AircraftInfoCard.vue";
 import BaseStatsTile from "./BaseStatsTile.vue";
 import ManufacturerLogo from "./ManufacturerLogo.vue";
 import CountryFlag from "./CountryFlag.vue";
-import useAircraft from "../composables/useAircraft.js";
+import useAircraftData from "../composables/useAircraftData.js";
 
-const { getSelectedAircraft: aircraft, isAircraftSelected, getRouteSet: routeSet } = useAircraft();
+const { getSelectedAircraft: aircraft, isAircraftSelected, getRouteSet: routeSet } = useAircraftData();
 </script>
 
 <style scoped>
