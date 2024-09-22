@@ -1,12 +1,26 @@
 <template>
-  <div class="p-4 flex items-center">
+  <div class="p-4 flex items-center max-h-16 w-full justify-center">
     <img
-      src="https://upload.wikimedia.org/wikipedia/commons/1/1b/EasyJet_logo.svg"
-      alt="EasyJet"
+      :src="airlineLogoUrl"
+      alt="Airline logo"
+      class="max-h-full object-contain"
     />
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { computed, defineProps } from "vue";
+
+const props = defineProps({
+  icaoCode: {
+    type: String,
+    required: true,
+  },
+});
+
+const airlineLogoUrl = computed(() => {
+  return `/logos/airline/${props.icaoCode}.svg`;
+});
+</script>
 
 <style scoped></style>

@@ -7,9 +7,9 @@
       <div class="flex flex-col pb-2 overflow-y-scroll">
         <planespotters-photo :icao-code="aircraft.hex || ''" />
         <div
-          class="grid grid-cols-3 divide-x divide-solid divide-neutral-200 bg-white sticky top-0 mb-4 shadow-lg z-10"
+          class="grid grid-cols-3 divide-x divide-solid divide-neutral-200 bg-white sticky top-0 mb-4 shadow-lg z-10 max-h-16"
         >
-          <airline-logo :icao-code="aircraft.hex" />
+          <airline-logo :icaoCode="aircraft.getPotentialAirlineCode()" />
           <base-info-tile :value="aircraft.flight" label="Callsign" />
           <base-info-tile :value="aircraft.registration" label="Registration" />
         </div>

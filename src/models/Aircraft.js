@@ -125,4 +125,10 @@ export default class Aircraft {
     }
     return this.altBaro;
   }
+
+  getPotentialAirlineCode() {
+    if (this.flight && this.flight.length >= 6 && /^[A-Z]{3}/.test(this.flight)) {
+      return this.flight.substring(0, 3);
+    }
+  }
 }
