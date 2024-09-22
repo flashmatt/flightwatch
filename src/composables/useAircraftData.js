@@ -32,12 +32,6 @@ export default function useAircraftData(vectorSource) {
     });
   };
 
-  const updateIconImageRotation = (iconImage, rotationDegrees) => {
-    if (iconImage) {
-      iconImage.setRotation((rotationDegrees * Math.PI) / 180);
-    }
-  };
-
   const startPulsingAnimation = (feature) => {
     feature.set("startTime", Date.now());
 
@@ -103,7 +97,7 @@ export default function useAircraftData(vectorSource) {
       feature.setGeometry(new Point(fromLonLat([aircraft.lon, aircraft.lat])));
 
       const iconImage = getOrCreateIconImage(feature, aircraft);
-      updateIconImageRotation(iconImage, aircraft.trueHeading);
+      iconImage.setRotation(aircraft.getRotation());
 
       if (aircraftSelected.value && selectedAircraft.value.hex === hex) {
         selectedAircraft.value = aircraft;
