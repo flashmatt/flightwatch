@@ -103,7 +103,7 @@ export default class Aircraft {
     this.acasRa = aircraft.acas_ra ?? "None";
     this.gpsOkBefore = aircraft.gpsOkBefore ?? 0;
 
-    this.airline_code = '';
+    this.airline_code = "";
     this.route = [];
   }
 
@@ -125,5 +125,4 @@ export default class Aircraft {
     }
     return this.altBaro;
   }
-
 }

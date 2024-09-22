@@ -1,10 +1,8 @@
 <template>
   <div id="map" class="relative z-0 h-screen w-screen">
-
-    <map-controls/>
+    <map-controls />
   </div>
 </template>
-
 
 <script setup>
 import { onMounted, onBeforeUnmount } from "vue";
@@ -19,8 +17,12 @@ const { map, initializeMap, currentCenter, vectorSource } = useMap();
 
 const { initializeGeolocation } = useGeolocation(map, vectorSource);
 
-const { createOrUpdateAircraftFeature, removeStaleAircraftFeatures, selectAircraft, deselectAircraft  } =
-  useAircraftData(vectorSource);
+const {
+  createOrUpdateAircraftFeature,
+  removeStaleAircraftFeatures,
+  selectAircraft,
+  deselectAircraft,
+} = useAircraftData(vectorSource);
 
 const updateAircraftData = (newData) => {
   const newAircraftHexes = new Set();
@@ -31,8 +33,6 @@ const updateAircraftData = (newData) => {
   });
 
   removeStaleAircraftFeatures(newAircraftHexes);
-
-  map.value.render();
 };
 
 const { fetchAdsbData } = useAdsbData(currentCenter, updateAircraftData);
@@ -72,6 +72,6 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .ol-zoom {
-  right: 8px
+  right: 8px;
 }
 </style>

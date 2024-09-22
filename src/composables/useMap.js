@@ -8,12 +8,13 @@ import { Vector as VectorSource } from "ol/source";
 
 const map = ref(null);
 export default function useMap() {
-
   const currentCenter = ref({ lat: 0, lon: 0 });
 
   const vectorSource = new VectorSource();
   const vectorLayer = new VectorLayer({
     source: vectorSource,
+    updateWhileAnimating: true,
+    updateWhileInteracting: true,
   });
 
   const initializeMap = (targetId, initialCenter, initialZoom) => {
@@ -53,16 +54,16 @@ export default function useMap() {
   const setCenter = (position) => {
     const view = map.value.getView();
     view.animate({ center: position });
-  }
+  };
 
   const zoomIn = () => {
     const view = map.value.getView();
-    view.animate({zoom: view. getZoom() + 1});
+    view.animate({ zoom: view.getZoom() + 1 });
   };
 
   const zoomOut = () => {
     const view = map.value.getView();
-    view.animate({zoom: view.getZoom() - 1});
+    view.animate({ zoom: view.getZoom() - 1 });
   };
 
   return {

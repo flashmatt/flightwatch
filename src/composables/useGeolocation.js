@@ -1,4 +1,3 @@
-
 import Geolocation from "ol/Geolocation";
 import { Feature } from "ol";
 import { Point } from "ol/geom";
@@ -7,7 +6,6 @@ import { computed } from "vue";
 
 let geolocation = null;
 export default function useGeolocation(map, vectorSource) {
-
   let userLocationFeature = null;
 
   const initializeGeolocation = () => {
@@ -44,6 +42,6 @@ export default function useGeolocation(map, vectorSource) {
 
   return {
     initializeGeolocation,
-    getGeolocation
+    getGeolocation,
   };
 }

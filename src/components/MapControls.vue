@@ -26,12 +26,10 @@
         <Icon icon="mdi:minus" />
       </button>
     </div>
-
   </div>
 </template>
 
 <script setup>
-
 import { Icon } from "@iconify/vue";
 import useMap from "../composables/useMap.js";
 import useGeolocation from "../composables/useGeolocation.js";
@@ -43,9 +41,6 @@ const setToUserLocation = () => {
   let lonlat = getGeolocation.value.getPosition();
   setCenter(lonlat);
 };
-
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
