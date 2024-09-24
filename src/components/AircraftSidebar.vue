@@ -2,12 +2,12 @@
   <transition name="slide-fade">
     <aside
       v-if="isAircraftSelected"
-      class="absolute left-6 top-20 flex flex-col w-96 h-[89vh] mb-12 bg-neutral-200 rounded-2xl overflow-hidden shadow-2xl"
+      class="absolute left-6 top-20 flex flex-col w-96 h-[89vh] bg-neutral-200 rounded-2xl overflow-hidden shadow-2xl"
     >
-      <div class="flex flex-col pb-2 overflow-y-scroll">
+      <div class="flex flex-col overflow-y-scroll">
         <planespotters-photo :icao-code="aircraft.hex || ''" />
         <div
-          class="grid grid-cols-3 divide-x divide-solid divide-neutral-200 bg-white sticky top-0 mb-4 shadow-lg z-10 max-h-16"
+          class="grid grid-cols-3 divide-x divide-solid divide-neutral-300 bg-white sticky top-0 mb-4 shadow-lg z-10 max-h-16 border-b border-neutral-300"
         >
           <airline-logo :icaoCode="aircraft.getPotentialAirlineCode()" />
           <base-info-tile :value="aircraft.flight" label="Callsign" />
@@ -308,6 +308,28 @@
             />
           </aircraft-info-card>
         </div>
+        <div
+          class="grid grid-cols-2 divide-x divide-solid divide-neutral-300 bg-white sticky bottom-0 shadow-t-lg z-10 mt-2 border-t border-neutral-300"
+        >
+          <button
+            @click="toggleFollowAircraft"
+            class="flex p-4 gap-4 justify-center items-center"
+          >
+            <Icon
+              :icon="
+                isFollowingAircraft ? 'mdi:pin-off-outline' : 'mdi:pin-outline'
+              "
+              class="text-xl"
+            />
+            <span v-if="!isFollowingAircraft" class="font-medium">Follow</span>
+            <span v-else class="font-medium">Unfollow</span>
+          </button>
+
+          <button class="flex p-4 gap-4 justify-center items-center">
+            <Icon icon="material-symbols:route" class="text-xl" />
+            <span class="font-medium">Show Route</span>
+          </button>
+        </div>
       </div>
     </aside>
   </transition>
@@ -323,11 +345,14 @@ import BaseStatsTile from "./BaseStatsTile.vue";
 import ManufacturerLogo from "./ManufacturerLogo.vue";
 import CountryFlag from "./CountryFlag.vue";
 import useAircraftData from "../composables/useAircraftData.js";
+import { Icon } from "@iconify/vue";
 
 const {
   getSelectedAircraft: aircraft,
   isAircraftSelected,
   getRouteSet: routeSet,
+  toggleFollowAircraft,
+  isFollowingAircraft,
 } = useAircraftData();
 </script>
 

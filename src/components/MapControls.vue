@@ -2,44 +2,51 @@
   <div
     class="absolute top-1/2 right-4 transform -translate-y-1/2 flex flex-col space-y-4 z-10"
   >
-    <button
-      @click="setToUserLocation"
-      aria-label="Zoom In"
-      class="bg-white rounded-lg p-2 shadow-md hover:bg-gray-100 focus:outline-none mb-2"
-    >
-      <Icon icon="mdi:crosshairs-gps" />
-    </button>
-    <div class="flex flex-col space-y-2">
-      <button
-        @click="zoomIn"
-        aria-label="Zoom In"
-        class="bg-white rounded-lg p-2 shadow-md hover:bg-gray-100 focus:outline-none"
-      >
-        <Icon icon="mdi:plus" />
-      </button>
+    <map-control-button
+      icon="mdi:crosshairs-gps"
+      aria-label="Set to User Location"
+      :on-click="setToUserLocation"
+    />
 
-      <button
-        @click="zoomOut"
-        aria-label="Zoom Out"
-        class="bg-white rounded-lg p-2 shadow-md hover:bg-gray-100 focus:outline-none"
-      >
-        <Icon icon="mdi:minus" />
-      </button>
+    <div class="flex flex-col space-y-2">
+      <map-control-button
+        icon="mdi:plus"
+        aria-label="Zoom In"
+        :on-click="zoomIn"
+      />
+
+      <map-control-button
+        icon="mdi:minus"
+        ariaLabel="Zoom Out"
+        :on-click="zoomOut"
+      />
     </div>
+    <map-control-button
+      aria-label="settings"
+      :on-click="openSettings"
+      icon="material-symbols:settings"
+    />
   </div>
 </template>
 
 <script setup>
-import { Icon } from "@iconify/vue";
+import MapControlButton from "./MapControlButton.vue";
 import useMap from "../composables/useMap.js";
 import useGeolocation from "../composables/useGeolocation.js";
+import useAircraftData from "../composables/useAircraftData.js";
 
 const { zoomIn, zoomOut, setCenter } = useMap();
 const { getGeolocation } = useGeolocation();
+const { stopFollowingAircraft } = useAircraftData();
 
 const setToUserLocation = () => {
   let lonlat = getGeolocation.value.getPosition();
+  stopFollowingAircraft();
   setCenter(lonlat);
+};
+
+const openSettings = () => {
+  console.log("open settings");
 };
 </script>
 

@@ -5,12 +5,16 @@ import { Point } from "ol/geom";
 import { Style, Icon, Circle as CircleStyle, Stroke } from "ol/style";
 import { fromLonLat } from "ol/proj";
 import useSprites from "../composables/useSprites";
+import useMap from "./useMap.js";
 
 const selectedAircraft = ref({});
 const aircraftSelected = ref(false);
 const routeSet = ref([]);
+const followAircraft = ref(false);
+
 export default function useAircraftData(vectorSource) {
   const { getSvgFromAircraft } = useSprites();
+  const { setCenter } = useMap();
   const aircraftFeatures = {};
 
   const getOrCreateIconImage = (feature, aircraft) => {
@@ -101,6 +105,9 @@ export default function useAircraftData(vectorSource) {
 
       if (aircraftSelected.value && selectedAircraft.value.hex === hex) {
         selectedAircraft.value = aircraft;
+        if (followAircraft.value) {
+          setCenter(fromLonLat([aircraft.lon, aircraft.lat]));
+        }
       }
     } else {
       feature = new Feature({
@@ -170,11 +177,24 @@ export default function useAircraftData(vectorSource) {
     selectedAircraft.value = {};
     aircraftSelected.value = false;
     routeSet.value = [];
+    startFollowingAircraft();
+  };
+
+  const toggleFollowAircraft = () => {
+    followAircraft.value = !followAircraft.value;
+  };
+
+  const startFollowingAircraft = () => {
+    followAircraft.value = true;
+  };
+  const stopFollowingAircraft = () => {
+    followAircraft.value = false;
   };
 
   const isAircraftSelected = computed(() => aircraftSelected.value);
   const getSelectedAircraft = computed(() => selectedAircraft.value);
   const getRouteSet = computed(() => routeSet.value);
+  const isFollowingAircraft = computed(() => followAircraft.value);
 
   return {
     createOrUpdateAircraftFeature,
@@ -184,5 +204,9 @@ export default function useAircraftData(vectorSource) {
     isAircraftSelected,
     getSelectedAircraft,
     getRouteSet,
+    toggleFollowAircraft,
+    isFollowingAircraft,
+    startFollowingAircraft,
+    stopFollowingAircraft,
   };
 }
