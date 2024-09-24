@@ -56,6 +56,11 @@ export default function useMap() {
     view.animate({ center: position });
   };
 
+  const setCenterWithoutEasing = (position) => {
+    const view = map.value.getView();
+    view.animate({ center: position, duration: 1750, easing: (t) => t });
+  };
+
   const zoomIn = () => {
     const view = map.value.getView();
     view.animate({ zoom: view.getZoom() + 1 });
@@ -72,6 +77,7 @@ export default function useMap() {
     currentCenter,
     vectorSource,
     setCenter,
+    setCenterWithoutEasing,
     zoomIn,
     zoomOut,
   };

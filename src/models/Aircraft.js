@@ -6,7 +6,7 @@ export default class Aircraft {
     this.lon = aircraft.lon ?? 0;
     this.hex = aircraft.hex ?? "";
     this.flight = aircraft.flight ?? "Unknown";
-    this.track = aircraft.track ?? 0;
+    this.track = aircraft.track ?? "Unknown";
     this.speed = aircraft.gs ?? 0;
 
     this.type = aircraft.type ?? "Unknown Type";
@@ -116,7 +116,13 @@ export default class Aircraft {
   }
 
   getRotation() {
-    return (this.track * Math.PI) / 180;
+    let heading = 0;
+    if (this.track === "Unknown" || this.track === undefined) {
+      heading = this.trueHeading;
+    } else {
+      heading = this.track;
+    }
+    return (heading * Math.PI) / 180;
   }
 
   getAltitude() {

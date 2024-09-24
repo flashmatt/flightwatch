@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "prettier .  --write",
-    "lint": "eslin"
+    "lint": "eslint"
   },
   "dependencies": {
     "axios": "^1.7.7",

@@ -14,7 +14,7 @@ const followAircraft = ref(false);
 
 export default function useAircraftData(vectorSource) {
   const { getSvgFromAircraft } = useSprites();
-  const { setCenter } = useMap();
+  const { setCenterWithoutEasing: setCenter } = useMap();
   const aircraftFeatures = {};
 
   const getOrCreateIconImage = (feature, aircraft) => {
@@ -23,7 +23,7 @@ export default function useAircraftData(vectorSource) {
       iconImage = new Icon({
         src: getSvgFromAircraft(aircraft.aircraftType),
         scale: 1,
-        rotation: (aircraft.track * Math.PI) / 180,
+        rotation: aircraft.getRotation(),
       });
       feature.set("iconImage", iconImage);
     }
@@ -97,8 +97,34 @@ export default function useAircraftData(vectorSource) {
     const hex = aircraft.hex;
     let feature = aircraftFeatures[hex];
 
+    const currentTime = new Date().getTime();
+
     if (feature) {
-      feature.setGeometry(new Point(fromLonLat([aircraft.lon, aircraft.lat])));
+      const oldCoords = feature.getGeometry().getCoordinates();
+      const newCoords = fromLonLat([aircraft.lon, aircraft.lat]);
+
+      const duration = 1750; // 1 second
+      const moveFeature = () => {
+        const elapsed = Math.min(
+          (new Date().getTime() - currentTime) / duration,
+          1,
+        );
+
+        const interpolatedCoords = [
+          oldCoords[0] + (newCoords[0] - oldCoords[0]) * elapsed,
+          oldCoords[1] + (newCoords[1] - oldCoords[1]) * elapsed,
+        ];
+
+        feature.setGeometry(new Point(interpolatedCoords));
+
+        if (elapsed < 1) {
+          requestAnimationFrame(moveFeature);
+        } else {
+          feature.setGeometry(new Point(newCoords)); // Ensure it snaps to final position
+        }
+      };
+
+      requestAnimationFrame(moveFeature);
 
       const iconImage = getOrCreateIconImage(feature, aircraft);
       iconImage.setRotation(aircraft.getRotation());
@@ -177,7 +203,7 @@ export default function useAircraftData(vectorSource) {
     selectedAircraft.value = {};
     aircraftSelected.value = false;
     routeSet.value = [];
-    startFollowingAircraft();
+    stopFollowingAircraft();
   };
 
   const toggleFollowAircraft = () => {
