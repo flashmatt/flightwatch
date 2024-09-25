@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center py-2">
-    <span class="font-extrabold">{{ value }}</span>
+    <span class="font-extrabold tracking-widest">{{ value }}</span>
     <span class="text-sm font-light">{{ label }}</span>
   </div>
 </template>
