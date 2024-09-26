@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute top-1/2 right-4 transform -translate-y-1/2 flex flex-col space-y-4 z-10"
+    class="max-md:hidden absolute top-1/2 right-4 transform -translate-y-1/2 flex flex-col space-y-4 z-10"
   >
     <map-control-button
       icon="mdi:crosshairs-gps"

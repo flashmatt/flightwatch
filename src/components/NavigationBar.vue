@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-20 w-screen bg-gradient-to-b from-gray-800 to-transparent px-4"
+    class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center md:justify-between h-20 w-screen bg-gradient-to-b from-gray-800 to-transparent px-4"
   >
     <div class="flex items-center space-x-2 px-4 group">
       <svg
@@ -8,7 +8,6 @@
         viewBox="0 0 100 100"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <!-- Your SVG path -->
         <path
           d="M55.778,55.779c-3.191,3.189-8.365,3.189-11.56,0c-3.187-3.186-3.187-8.363,0-11.556c3.195-3.193,8.369-3.193,11.56,0
           C58.97,47.417,58.97,52.594,55.778,55.779z M61.635,43.822l26.164-20.063c0,0,8.828-7.547,2.409-13.969
@@ -19,10 +18,10 @@
           C3.37,16.212,12.201,23.759,12.201,23.759z"
         />
       </svg>
-      <span class="text-white font-medium text-2xl">FLIGHTWATCH</span>
+      <span class="text-white font-medium text-2xl">FLIGHT WATCH</span>
     </div>
 
-    <div class="flex items-center space-x-4 px-4">
+    <div class="max-md:hidden flex items-center space-x-4 px-4">
       <a
         href="#"
         class="text-white hover:text-gray-300 flex items-center gap-2"
@@ -58,7 +57,6 @@ import { Icon } from "@iconify/vue";
   transition: transform 2s ease-out;
 }
 
-/* Infinite spinning animation */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -68,7 +66,6 @@ import { Icon } from "@iconify/vue";
   }
 }
 
-/* Decelerating spin animation: spins an additional 360 degrees */
 @keyframes decelerate-spin {
   from {
     transform: rotate(360deg);
@@ -78,12 +75,10 @@ import { Icon } from "@iconify/vue";
   }
 }
 
-/* Spin infinitely on hover */
 .group:hover .propeller {
   animation: spin 1s linear infinite;
 }
 
-/* Apply decelerate-spin when hover ends */
 .group:not(:hover) .propeller {
   animation: decelerate-spin 2s ease-out forwards;
 }

@@ -1,19 +1,13 @@
 <template>
-  <transition name="slide-fade">
+  <transition :name="isDesktop ? 'slide-fade-bottom' : 'slide-fade'">
     <aside
       v-if="isAircraftSelected"
-      class="absolute left-6 top-20 flex flex-col w-96 h-[89vh] bg-neutral-200 rounded-2xl overflow-hidden shadow-2xl"
+      class="absolute bottom-0 md:left-6 md:bottom-6 lg:top-20 flex flex-col w-full md:w-[430px] lg:w-96 lg:h-[89vh] bg-neutral-200 rounded-t-2xl md:rounded-b-2xl overflow-hidden shadow-2xl"
     >
       <div class="flex flex-col overflow-y-scroll">
-        <planespotters-photo :icao-code="aircraft.hex || ''" />
-        <div
-          class="grid grid-cols-3 divide-x divide-solid divide-neutral-300 bg-white sticky top-0 mb-4 shadow-lg z-10 max-h-16 border-b border-neutral-300"
-        >
-          <airline-logo :icaoCode="aircraft.getPotentialAirlineCode()" />
-          <base-info-tile :value="aircraft.flight" label="Callsign" />
-          <base-info-tile :value="aircraft.registration" label="Registration" />
-        </div>
-        <div class="px-4 flex flex-col gap-4 pb-2">
+        <sidebar-large-header v-if="isDesktop" :aircraft="aircraft" />
+        <sidebar-header v-else :aircraft="aircraft" :route="routeSet" />
+        <div v-show="isOpen" class="px-4 flex flex-col gap-4 pb-2">
           <aircraft-route
             v-if="routeSet.length > 1"
             :route="routeSet"
@@ -309,7 +303,7 @@
           </aircraft-info-card>
         </div>
         <div
-          class="grid grid-cols-2 divide-x divide-solid divide-neutral-300 bg-white sticky bottom-0 shadow-t-lg z-10 mt-2 border-t border-neutral-300"
+          class="grid grid-cols-2 divide-x divide-solid divide-neutral-300 bg-white sticky bottom-0 lg:shadow-t-lg z-10 lg:mt-2 border-t border-neutral-300"
         >
           <button
             @click="toggleFollowAircraft"
@@ -346,6 +340,10 @@ import ManufacturerLogo from "./ManufacturerLogo.vue";
 import CountryFlag from "./CountryFlag.vue";
 import useAircraftData from "../composables/useAircraftData.js";
 import { Icon } from "@iconify/vue";
+import { ref, watch } from "vue";
+import useResponsive from "../composables/useResponsive.js";
+import SidebarLargeHeader from "./SidebarLargeHeader.vue";
+import SidebarHeader from "./SidebarHeader.vue";
 
 const {
   getSelectedAircraft: aircraft,
@@ -354,15 +352,21 @@ const {
   toggleFollowAircraft,
   isFollowingAircraft,
 } = useAircraftData();
+
+const { isDesktop } = useResponsive();
+
+const isOpen = ref(false);
+
+watch(isDesktop, () => {
+  isOpen.value = !isDesktop.value;
+});
 </script>
 
 <style scoped>
-.slide-fade-enter-active {
-  transition: all 0.3s ease-in;
-}
-
+/* Default slide from left */
+.slide-fade-enter-active,
 .slide-fade-leave-active {
-  transition: all 0.3s ease-out;
+  transition: all 0.3s ease;
 }
 
 .slide-fade-enter-from,
@@ -370,4 +374,17 @@ const {
   transform: translateX(-100%);
   opacity: 0;
 }
+
+/* Slide from bottom for mobile */
+.slide-fade-bottom-enter-active,
+.slide-fade-bottom-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-bottom-enter-from,
+.slide-fade-bottom-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
 </style>
+

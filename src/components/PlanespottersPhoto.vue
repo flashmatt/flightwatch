@@ -1,15 +1,16 @@
 <template>
-  <div class="relative inline-block">
-    <div v-if="photo">
+  <div class="relative inline-block w-full text-right">
+    <div v-if="photo" class="flex flex-col items-end">
       <a :href="photo.link" target="_blank">
         <img
           :src="photo.thumbnail_large.src"
           :alt="`Photo by ${photo.photographer}`"
+          class="max-lg:max-h-28 max-lg:rounded-xl block"
         />
       </a>
       <span
-        class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-[10px] p-1 rounded"
-        >Image © {{ photo.photographer }}</span
+        class="lg:absolute lg:bottom-0 lg:right-2 lg:bg-black lg:bg-opacity-50 lg:text-white text-[10px] p-1 rounded w-fit"
+      >Image © {{ photo.photographer }}</span
       >
     </div>
     <div v-else-if="loading">Loading...</div>
@@ -17,6 +18,7 @@
     <div v-else>No photo found</div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, watch } from "vue";

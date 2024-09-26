@@ -11,6 +11,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@vueuse/core": "^11.1.0",
     "axios": "^1.7.7",
     "ol": "^10.1.0",
     "vue": "^3.4.37"
