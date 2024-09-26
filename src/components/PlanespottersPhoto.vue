@@ -9,7 +9,7 @@
         />
       </a>
       <span
-        class="lg:absolute lg:bottom-0 lg:right-2 lg:bg-black lg:bg-opacity-50 lg:text-white text-[10px] p-1 rounded w-fit"
+        class="lg:absolute lg:top-2 lg:right-2 lg:bg-black lg:bg-opacity-50 lg:text-white text-[10px] p-1 rounded w-fit"
       >Image © {{ photo.photographer }}</span
       >
     </div>

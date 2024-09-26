@@ -1,5 +1,5 @@
 <template>
-  <transition :name="isDesktop ? 'slide-fade-bottom' : 'slide-fade'">
+  <transition :name="isDesktop ? 'slide-fade' : 'slide-fade-bottom'">
     <aside
       v-if="isAircraftSelected"
       class="absolute bottom-0 md:left-6 md:bottom-6 lg:top-20 flex flex-col w-full md:w-[430px] lg:w-96 lg:h-[89vh] bg-neutral-200 rounded-t-2xl md:rounded-b-2xl overflow-hidden shadow-2xl"
@@ -355,10 +355,13 @@ const {
 
 const { isDesktop } = useResponsive();
 
-const isOpen = ref(false);
+const isOpen = ref(true);
 
 watch(isDesktop, () => {
-  isOpen.value = !isDesktop.value;
+  if (!isDesktop.value) {
+    isOpen.value = false;
+  }
+  isOpen.value = isDesktop.value;
 });
 </script>
 
