@@ -15,7 +15,11 @@
     </div>
     <div v-else-if="loading">Loading...</div>
     <div v-else-if="error">{{ error }}</div>
-    <div v-else>No photo found</div>
+    <div v-else class="hidden lg:flex flex-col items-center h-[200px] bg-cover bg-bottom bg-[url('/noimage.jpg')]">
+      <p class="text-gray-500 mt-4">
+        No photo found for this aircraft.
+      </p>
+    </div>
   </div>
 </template>
 
