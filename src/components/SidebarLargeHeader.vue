@@ -1,8 +1,12 @@
 <template>
-  <div @click="$emit('compact')" class="absolute w-full flex justify-center">
+  <div
+    v-if="actAsExpandable"
+    @click="$emit('compact')"
+    class="absolute w-full flex justify-center"
+  >
     <div class="w-12 h-1.5 bg-gray-300 rounded-full mt-2 z-10"></div>
   </div>
-    <planespotters-photo :icao-code="aircraft.hex || ''" :expanded="expanded"/>
+  <planespotters-photo :icao-code="aircraft.hex || ''" :expanded="expanded" />
   <div
     class="grid grid-cols-3 divide-x divide-solid divide-neutral-300 bg-white sticky top-0 mb-4 shadow-lg z-10 max-h-16 border-b border-neutral-300"
   >
@@ -13,18 +17,21 @@
 </template>
 
 <script setup>
-
 import PlanespottersPhoto from "./PlanespottersPhoto.vue";
 import BaseInfoTile from "./BaseInfoTile.vue";
 import AirlineLogo from "./AirlineLogo.vue";
+import { computed } from "vue";
 
-defineProps({
+const props = defineProps({
   aircraft: Object,
   expanded: Boolean,
+  isDesktop: Boolean,
 });
 defineEmits(["compact"]);
+
+const actAsExpandable = computed(() => {
+  return !props.isDesktop && props.expanded;
+});
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

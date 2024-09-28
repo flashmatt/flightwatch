@@ -11,25 +11,32 @@
       </a>
       <span
         class="text-[10px] py-1 px-2 rounded w-fit"
-        :class="{ 'absolute top-2 right-2 bg-black bg-opacity-50 text-white': expanded }"
-      >Image © {{ photo.photographer }}</span>
+        :class="{
+          'absolute top-2 right-2 bg-black bg-opacity-50 text-white': expanded,
+        }"
+        >Image © {{ photo.photographer }}</span
+      >
     </div>
     <div v-else-if="loading">Loading...</div>
     <div v-else-if="error">{{ error }}</div>
-    <div v-else class="flex flex-col items-center justify-center h-[200px]" :class="{ 'lg:h-[300px]': expanded }">
+    <div
+      v-else
+      class="flex flex-col items-center justify-center h-[200px]"
+      :class="{ 'lg:h-[300px]': expanded }"
+    >
       <div
         v-if="expanded"
         class="w-full h-full bg-cover bg-bottom"
         :style="{ backgroundImage: `url('/noimage.jpg')` }"
       >
-        <p class="text-gray-500 mt-4 text-center">No photo found for this aircraft.</p>
+        <p class="text-gray-500 mt-4 text-center">
+          No photo found for this aircraft.
+        </p>
       </div>
       <p v-else class="text-gray-500 mt-4">No photo found for this aircraft.</p>
     </div>
   </div>
 </template>
-
-
 
 <script setup>
 import { ref, watch } from "vue";

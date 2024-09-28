@@ -3,13 +3,29 @@
     <aside
       v-if="isAircraftSelected"
       class="absolute bottom-0 md:left-6 md:bottom-6 lg:top-20 flex flex-col w-full md:w-[430px] lg:w-96 bg-neutral-200 rounded-t-2xl md:rounded-b-2xl overflow-hidden shadow-2xl transition-all duration-1000 ease-in-out"
-      :class="{ 'sidebar-max': isExpanded, 'sidebar-min': !isExpanded }"
+      :class="{
+        'sidebar-max': isExpanded || isDesktop,
+        'sidebar-min': !isExpanded && !isDesktop,
+      }"
     >
-
-    <div class="flex flex-col overflow-y-scroll">
-        <sidebar-large-header v-if="isDesktop || isExpanded" :aircraft="aircraft" :expanded="isExpanded" v-on:compact="toggleSidebarExpand" />
-        <sidebar-header v-else :aircraft="aircraft" :route="routeSet" v-on:expand="toggleSidebarExpand" />
-        <div v-show="isExpanded" class="px-4 flex flex-col gap-4 pb-2">
+      <div class="flex flex-col overflow-y-scroll">
+        <sidebar-large-header
+          v-if="isDesktop || isExpanded"
+          :aircraft="aircraft"
+          :expanded="isExpanded"
+          :isDesktop="isDesktop"
+          v-on:compact="toggleSidebarExpand"
+        />
+        <sidebar-header
+          v-else
+          :aircraft="aircraft"
+          :route="routeSet"
+          v-on:expand="toggleSidebarExpand"
+        />
+        <div
+          v-show="isExpanded || isDesktop"
+          class="px-4 flex flex-col gap-4 pb-2"
+        >
           <aircraft-route
             v-if="routeSet.length > 1"
             :route="routeSet"
@@ -342,35 +358,23 @@ import { Icon } from "@iconify/vue";
 import { ref, watch, onMounted } from "vue";
 import SidebarLargeHeader from "./SidebarLargeHeader.vue";
 import SidebarHeader from "./SidebarHeader.vue";
+import useResponsive from "../composables/useResponsive.js";
 
-const { getSelectedAircraft: aircraft, isAircraftSelected, getRouteSet: routeSet, toggleFollowAircraft, isFollowingAircraft } = useAircraftData();
+const {
+  getSelectedAircraft: aircraft,
+  isAircraftSelected,
+  getRouteSet: routeSet,
+  toggleFollowAircraft,
+  isFollowingAircraft,
+} = useAircraftData();
 
-const isOpen = ref(false); // Control whether the sidebar is expanded
 const isExpanded = ref(false); // Controls if the sidebar is fully expanded on small screens
-const isDesktop = ref(false); // Controls whether we're on a desktop-size screen
 
-const handleResize = () => {
-  isDesktop.value = window.innerWidth >= 1024;
-  if (!isDesktop.value) {
-    isOpen.value = false;
-  }
-};
-
-onMounted(() => {
-  handleResize();
-  window.addEventListener('resize', handleResize);
-});
-
+const { isDesktop } = useResponsive();
 const toggleSidebarExpand = () => {
   isExpanded.value = !isExpanded.value;
-  isOpen.value = isExpanded.value; // Show the content if expanded
 };
-
-watch(isDesktop, () => {
-  isOpen.value = isDesktop.value; // Automatically open sidebar on desktop
-});
 </script>
-
 
 <style scoped>
 /* Default slide from left */
@@ -397,8 +401,8 @@ watch(isDesktop, () => {
   opacity: 0;
 }
 
-   /* Custom max-height values for expanded and collapsed states */
- .sidebar-max {
+/* Custom max-height values for expanded and collapsed states */
+.sidebar-max {
   max-height: 89vh;
 }
 
@@ -411,5 +415,3 @@ watch(isDesktop, () => {
   overflow: hidden;
 }
 </style>
-
-

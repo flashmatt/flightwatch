@@ -1,5 +1,7 @@
 <template>
-  <div class="flex flex-col items-center bg-white lg:rounded-xl py-2 px-4 max-lg:border-t border-neutral-300">
+  <div
+    class="flex flex-col items-center bg-white lg:rounded-xl py-2 px-4 max-lg:border-t border-neutral-300"
+  >
     <div class="flex justify-between w-full">
       <span class="font-light text-sm">{{ route[0].location }}</span>
       <span class="font-light text-sm">{{ route[1].location }}</span>
