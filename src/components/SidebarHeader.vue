@@ -62,7 +62,6 @@
 
 <script setup>
 import PlanespottersPhoto from "./PlanespottersPhoto.vue";
-import BaseInfoTile from "./BaseInfoTile.vue";
 import AirlineLogo from "./AirlineLogo.vue";
 import AircraftRoute from "./AircraftRoute.vue";
 import { Icon } from "@iconify/vue";

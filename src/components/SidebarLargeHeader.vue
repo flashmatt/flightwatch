@@ -6,7 +6,7 @@
   >
     <div class="w-12 h-1.5 bg-gray-300 rounded-full mt-2 z-10"></div>
   </div>
-  <planespotters-photo :icao-code="aircraft.hex || ''" :expanded="expanded" />
+  <planespotters-photo :icao-code="aircraft.hex || ''" :expanded="isExpanded" />
   <div
     class="grid grid-cols-3 divide-x divide-solid divide-neutral-300 bg-white sticky top-0 mb-4 shadow-lg z-10 max-h-16 border-b border-neutral-300"
   >
@@ -32,6 +32,8 @@ defineEmits(["compact"]);
 const actAsExpandable = computed(() => {
   return !props.isDesktop && props.expanded;
 });
+
+const isExpanded = computed(() => props.isDesktop || props.expanded);
 </script>
 
 <style scoped></style>
