@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-start lg:items-center lg:max-h-16 w-1/4 lg:w-full lg:justify-center">
+  <div class="flex items-center lg:max-h-16 w-full justify-center">
     <img
       :src="airlineLogoUrl"
       alt="Airline logo"

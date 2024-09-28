@@ -1,5 +1,8 @@
 <template>
-  <planespotters-photo :icao-code="aircraft.hex || ''" />
+  <div @click="$emit('compact')" class="absolute w-full flex justify-center">
+    <div class="w-12 h-1.5 bg-gray-300 rounded-full mt-2 z-10"></div>
+  </div>
+    <planespotters-photo :icao-code="aircraft.hex || ''" :expanded="expanded"/>
   <div
     class="grid grid-cols-3 divide-x divide-solid divide-neutral-300 bg-white sticky top-0 mb-4 shadow-lg z-10 max-h-16 border-b border-neutral-300"
   >
@@ -17,7 +20,9 @@ import AirlineLogo from "./AirlineLogo.vue";
 
 defineProps({
   aircraft: Object,
+  expanded: Boolean,
 });
+defineEmits(["compact"]);
 </script>
 
 <style scoped>

@@ -5,23 +5,30 @@
         <img
           :src="photo.thumbnail_large.src"
           :alt="`Photo by ${photo.photographer}`"
-          class="max-lg:max-h-28 max-lg:rounded-xl block"
+          class=""
+          :class="{ 'max-lg:max-h-20 max-lg:rounded-xl': !expanded }"
         />
       </a>
       <span
-        class="lg:absolute lg:top-2 lg:right-2 lg:bg-black lg:bg-opacity-50 lg:text-white text-[10px] p-1 rounded w-fit"
-      >Image © {{ photo.photographer }}</span
-      >
+        class="text-[10px] py-1 px-2 rounded w-fit"
+        :class="{ 'absolute top-2 right-2 bg-black bg-opacity-50 text-white': expanded }"
+      >Image © {{ photo.photographer }}</span>
     </div>
     <div v-else-if="loading">Loading...</div>
     <div v-else-if="error">{{ error }}</div>
-    <div v-else class="hidden lg:flex flex-col items-center h-[200px] bg-cover bg-bottom bg-[url('/noimage.jpg')]">
-      <p class="text-gray-500 mt-4">
-        No photo found for this aircraft.
-      </p>
+    <div v-else class="flex flex-col items-center justify-center h-[200px]" :class="{ 'lg:h-[300px]': expanded }">
+      <div
+        v-if="expanded"
+        class="w-full h-full bg-cover bg-bottom"
+        :style="{ backgroundImage: `url('/noimage.jpg')` }"
+      >
+        <p class="text-gray-500 mt-4 text-center">No photo found for this aircraft.</p>
+      </div>
+      <p v-else class="text-gray-500 mt-4">No photo found for this aircraft.</p>
     </div>
   </div>
 </template>
+
 
 
 <script setup>
@@ -31,6 +38,11 @@ const props = defineProps({
   icaoCode: {
     type: String,
     required: true,
+  },
+  expanded: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 });
 
