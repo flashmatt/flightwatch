@@ -2,7 +2,7 @@
   <div
     v-if="actAsExpandable"
     @click="$emit('compact')"
-    class="absolute w-full flex justify-center"
+    class="absolute w-full flex justify-center h-10"
   >
     <div class="w-12 h-1.5 bg-gray-300 rounded-full mt-2 z-10"></div>
   </div>

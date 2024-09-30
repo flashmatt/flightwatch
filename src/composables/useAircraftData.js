@@ -2,10 +2,18 @@ import { computed, ref } from "vue";
 import axios from "axios";
 import { Feature } from "ol";
 import { Point } from "ol/geom";
-import { Style, Icon, Circle as CircleStyle, Stroke } from "ol/style";
+import {
+  Style,
+  Icon,
+  Text,
+  Fill,
+  Stroke,
+  Circle as CircleStyle,
+} from "ol/style";
 import { fromLonLat } from "ol/proj";
 import useSprites from "../composables/useSprites";
 import useMap from "./useMap.js";
+import useMapSettings from "./useMapSettings.js";
 
 const selectedAircraft = ref({});
 const aircraftSelected = ref(false);
@@ -15,119 +23,248 @@ const followAircraft = ref(false);
 export default function useAircraftData(vectorSource) {
   const { getSvgFromAircraft } = useSprites();
   const { setCenterWithoutEasing: setCenter } = useMap();
-  const aircraftFeatures = {};
+  const { mapSettings } = useMapSettings();
 
-  const getOrCreateIconImage = (feature, aircraft) => {
-    let iconImage = feature.get("iconImage");
-    if (!iconImage) {
-      iconImage = new Icon({
-        src: getSvgFromAircraft(aircraft.aircraftType),
+  const aircraftFeatures = new Map();
+
+  // Caches
+  const iconCache = {};
+  const styleCache = {};
+  const logoCache = {};
+
+  let animationFrameId;
+
+  const getCachedIcon = (aircraftType, rotation) => {
+    const key = `${aircraftType}-${rotation}`;
+    if (!iconCache[key]) {
+      iconCache[key] = new Icon({
+        src: getSvgFromAircraft(aircraftType),
         scale: 1,
-        rotation: aircraft.getRotation(),
+        rotation: rotation,
       });
-      feature.set("iconImage", iconImage);
     }
-    return iconImage;
+    return iconCache[key];
   };
 
-  const createIconStyle = (iconImage) => {
-    return new Style({
-      image: iconImage,
-    });
+  const getCachedAirlineLogoSrc = (airlineCode) => {
+    if (!airlineCode) return null;
+    if (!logoCache[airlineCode]) {
+      const src = `/logos/airline_symbol/${airlineCode}.svg`;
+      logoCache[airlineCode] = src;
+    }
+    return logoCache[airlineCode];
+  };
+
+  const getCachedStyle = (aircraft, iconImage) => {
+    const key = `${aircraft.flight || ""}-${aircraft.hex}-${aircraft.aircraftType}-${iconImage.getRotation()}-${mapSettings.showFlightNumbers}-${mapSettings.showAirlineLogos}`;
+
+    if (!styleCache[key]) {
+      const styles = [
+        new Style({
+          image: iconImage,
+        }),
+      ];
+
+      // Conditionally add flight number as text
+      if (aircraft.flight && mapSettings.showFlightNumbers) {
+        styles.push(
+          new Style({
+            text: new Text({
+              text: aircraft.flight,
+              offsetY: -30, // Position above the icon
+              font: "12px Calibri,sans-serif",
+              fill: new Fill({ color: "#fff" }), // Optional: Add stroke for better visibility
+            }),
+          }),
+        );
+      }
+
+      // Conditionally add airline logo
+      if (mapSettings.showAirlineLogos) {
+        const airlineCode = aircraft.getPotentialAirlineCode();
+        if (airlineCode) {
+          const airlineLogoSrc = getCachedAirlineLogoSrc(airlineCode);
+          if (airlineLogoSrc) {
+            styles.push(
+              new Style({
+                image: new Icon({
+                  src: airlineLogoSrc,
+                  width: 25,
+                  preserveAspectRatio: true,
+                  displacement: [-45, 30], // Position
+                }),
+                zIndex: 30,
+              }),
+            );
+          }
+        }
+      }
+
+      styleCache[key] = styles;
+    }
+    return styleCache[key];
   };
 
   const startPulsingAnimation = (feature) => {
     feature.set("startTime", Date.now());
 
-    const ringStroke = new Stroke({
+    let ringStroke = new Stroke({
       color: `rgba(0, 153, 255, 1)`,
       width: 5,
     });
 
-    const ringImage = new CircleStyle({
+    let ringImage = new CircleStyle({
       radius: 20,
       stroke: ringStroke,
     });
 
-    const ringStyle = new Style({
+    let ringStyle = new Style({
       image: ringImage,
     });
 
-    feature.setStyle((feature) => {
-      const elapsed = Date.now() - feature.get("startTime");
-      const duration = 1500;
-      const t = (elapsed % duration) / duration;
+    feature.set("ringStyle", ringStyle);
 
-      const scale = 1 + t;
-      const radius = 20 * scale;
-      const opacity = 1 - t;
+    const existingStyles = feature.getStyle();
+    if (Array.isArray(existingStyles)) {
+      feature.setStyle([...existingStyles, ringStyle]);
+    } else {
+      feature.setStyle([existingStyles, ringStyle]);
+    }
 
-      ringImage.setRadius(radius);
-      ringStroke.setColor(`rgba(0, 153, 255, ${opacity})`);
-
-      return [
-        createIconStyle(getOrCreateIconImage(feature, feature.get("meta"))),
-        ringStyle,
-      ];
-    });
-
-    const animate = () => {
-      feature.changed();
-      feature.set("animationFrame", requestAnimationFrame(animate));
-    };
-
-    feature.set("animationFrame", requestAnimationFrame(animate));
+    if (!animationFrameId) {
+      animateFeatures();
+    }
   };
 
   const stopPulsingAnimation = (feature) => {
     feature.unset("startTime");
 
-    const animationFrame = feature.get("animationFrame");
-    if (animationFrame) {
-      cancelAnimationFrame(animationFrame);
-      feature.unset("animationFrame");
+    // Remove ringStyle from feature's styles
+    const styles = feature.getStyle();
+    if (Array.isArray(styles)) {
+      const newStyles = styles.filter(
+        (style) => style !== feature.get("ringStyle"),
+      );
+      feature.setStyle(newStyles);
     }
 
-    const iconImage = getOrCreateIconImage(feature, feature.get("meta"));
-    const iconStyle = createIconStyle(iconImage);
-    feature.setStyle(iconStyle);
+    feature.unset("ringStyle");
+
+    if (!anyFeaturesAnimating()) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+  };
+
+  const animateFeatures = () => {
+    const currentTime = Date.now();
+    let anyAnimating = false;
+
+    aircraftFeatures.forEach((feature) => {
+      const startTime = feature.get("startTime");
+      const moveStartTime = feature.get("moveStartTime");
+
+      if (startTime) {
+        anyAnimating = true;
+        const elapsed = currentTime - startTime;
+        const duration = 1500;
+        const t = (elapsed % duration) / duration;
+
+        const scale = 1 + t;
+        const radius = 20 * scale;
+        const opacity = 1 - t;
+
+        const ringStyle = feature.get("ringStyle");
+        if (ringStyle) {
+          const ringImage = ringStyle.getImage();
+          ringImage.setRadius(radius);
+          ringImage.getStroke().setColor(`rgba(0, 153, 255, ${opacity})`);
+        }
+
+        feature.changed();
+      }
+
+      if (moveStartTime) {
+        anyAnimating = true;
+        const elapsed = currentTime - moveStartTime;
+        const duration = 1750;
+        const t = Math.min(elapsed / duration, 1);
+
+        const oldCoords = feature.get("oldCoords");
+        const newCoords = feature.get("newCoords");
+
+        const interpolatedCoords = [
+          oldCoords[0] + (newCoords[0] - oldCoords[0]) * t,
+          oldCoords[1] + (newCoords[1] - oldCoords[1]) * t,
+        ];
+
+        feature.getGeometry().setCoordinates(interpolatedCoords);
+
+        if (t >= 1) {
+          feature.unset("moveStartTime");
+          feature.unset("oldCoords");
+          feature.unset("newCoords");
+          feature.getGeometry().setCoordinates(newCoords); // Ensure it snaps to final position
+        }
+
+        feature.changed();
+      }
+    });
+
+    if (anyAnimating) {
+      animationFrameId = requestAnimationFrame(animateFeatures);
+    } else {
+      animationFrameId = null;
+    }
+  };
+
+  const anyFeaturesAnimating = () => {
+    let animating = false;
+    aircraftFeatures.forEach((feature) => {
+      if (feature.get("startTime") || feature.get("moveStartTime")) {
+        animating = true;
+      }
+    });
+    return animating;
   };
 
   const createOrUpdateAircraftFeature = (aircraft) => {
     const hex = aircraft.hex;
-    let feature = aircraftFeatures[hex];
+    let feature = aircraftFeatures.get(hex);
 
-    const currentTime = new Date().getTime();
+    const currentTime = Date.now();
 
     if (feature) {
+      // Update existing feature
       const oldCoords = feature.getGeometry().getCoordinates();
       const newCoords = fromLonLat([aircraft.lon, aircraft.lat]);
 
-      const duration = 1750; // 1 second
-      const moveFeature = () => {
-        const elapsed = Math.min(
-          (new Date().getTime() - currentTime) / duration,
-          1,
-        );
+      feature.set("moveStartTime", currentTime);
+      feature.set("oldCoords", oldCoords);
+      feature.set("newCoords", newCoords);
 
-        const interpolatedCoords = [
-          oldCoords[0] + (newCoords[0] - oldCoords[0]) * elapsed,
-          oldCoords[1] + (newCoords[1] - oldCoords[1]) * elapsed,
-        ];
+      // Update rotation
+      const iconImage = feature.get("iconImage");
+      if (iconImage) {
+        iconImage.setRotation(aircraft.getRotation());
+      }
 
-        feature.setGeometry(new Point(interpolatedCoords));
+      // Update style if necessary
+      const newIconImage = getCachedIcon(
+        aircraft.aircraftType,
+        aircraft.getRotation(),
+      );
+      feature.set("iconImage", newIconImage);
 
-        if (elapsed < 1) {
-          requestAnimationFrame(moveFeature);
-        } else {
-          feature.setGeometry(new Point(newCoords)); // Ensure it snaps to final position
-        }
-      };
+      const styles = getCachedStyle(aircraft, newIconImage);
 
-      requestAnimationFrame(moveFeature);
+      // Preserve ringStyle if it exists
+      const ringStyle = feature.get("ringStyle");
+      if (ringStyle) {
+        styles.push(ringStyle);
+      }
 
-      const iconImage = getOrCreateIconImage(feature, aircraft);
-      iconImage.setRotation(aircraft.getRotation());
+      feature.setStyle(styles);
 
       if (aircraftSelected.value && selectedAircraft.value.hex === hex) {
         selectedAircraft.value = aircraft;
@@ -135,27 +272,37 @@ export default function useAircraftData(vectorSource) {
           setCenter(fromLonLat([aircraft.lon, aircraft.lat]));
         }
       }
+
+      if (!animationFrameId) {
+        animateFeatures();
+      }
     } else {
+      // Create new feature
       feature = new Feature({
         geometry: new Point(fromLonLat([aircraft.lon, aircraft.lat])),
         hex: hex,
         meta: aircraft,
       });
 
-      const iconImage = getOrCreateIconImage(feature, aircraft);
-      const iconStyle = createIconStyle(iconImage);
-      feature.setStyle(iconStyle);
+      const iconImage = getCachedIcon(
+        aircraft.aircraftType,
+        aircraft.getRotation(),
+      );
+      feature.set("iconImage", iconImage);
+
+      const styles = getCachedStyle(aircraft, iconImage);
+      feature.setStyle(styles);
 
       vectorSource.addFeature(feature);
-      aircraftFeatures[hex] = feature;
+      aircraftFeatures.set(hex, feature);
     }
   };
 
   const removeStaleAircraftFeatures = (newAircraftHexes) => {
-    for (const hex in aircraftFeatures) {
+    for (const hex of aircraftFeatures.keys()) {
       if (!newAircraftHexes.has(hex)) {
-        vectorSource.removeFeature(aircraftFeatures[hex]);
-        delete aircraftFeatures[hex];
+        vectorSource.removeFeature(aircraftFeatures.get(hex));
+        aircraftFeatures.delete(hex);
       }
     }
   };
@@ -186,7 +333,7 @@ export default function useAircraftData(vectorSource) {
     aircraftSelected.value = true;
     loadRouteSet(aircraft.flight, aircraft.lat, aircraft.lon);
 
-    const feature = aircraftFeatures[aircraft.hex];
+    const feature = aircraftFeatures.get(aircraft.hex);
     if (feature) {
       startPulsingAnimation(feature);
     }
@@ -194,7 +341,7 @@ export default function useAircraftData(vectorSource) {
 
   const deselectAircraft = () => {
     if (selectedAircraft.value.hex) {
-      const feature = aircraftFeatures[selectedAircraft.value.hex];
+      const feature = aircraftFeatures.get(selectedAircraft.value.hex);
       if (feature) {
         stopPulsingAnimation(feature);
       }

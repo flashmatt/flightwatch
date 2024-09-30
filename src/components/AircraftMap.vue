@@ -6,7 +6,6 @@
 
 <script setup>
 import { onMounted, onBeforeUnmount } from "vue";
-import "ol/ol.css";
 import useMap from "../composables/useMap";
 import useGeolocation from "../composables/useGeolocation";
 import useAdsbData from "../composables/useAdsbData";
@@ -35,7 +34,10 @@ const updateAircraftData = (newData) => {
   removeStaleAircraftFeatures(newAircraftHexes);
 };
 
-const { fetchAdsbData } = useAdsbData(currentCenter, updateAircraftData);
+const { startFetching, stopFetching } = useAdsbData(
+  currentCenter,
+  updateAircraftData,
+);
 
 const handleMapClick = (event) => {
   let clickedAircraft = false;
@@ -57,7 +59,7 @@ onMounted(async () => {
   await initializeMap("map", initialCenter, 8);
   initializeGeolocation();
 
-  fetchAdsbData();
+  startFetching(); // Start the fetch loop
 
   map.value.on("click", handleMapClick);
 });
@@ -67,6 +69,7 @@ onBeforeUnmount(() => {
     map.value.un("click", handleMapClick);
     map.value.setTarget(null);
   }
+  stopFetching(); // Stop the fetch loop when component unmounts
 });
 </script>
 

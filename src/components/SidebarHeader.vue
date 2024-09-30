@@ -9,6 +9,7 @@
       <div class="flex justify-start w-full gap-4">
         <airline-logo
           :icaoCode="aircraft.getPotentialAirlineCode()"
+          :symbol="true"
           class="py-2"
         />
 

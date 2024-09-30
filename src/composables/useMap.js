@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { Map, View } from "ol";
 import { Tile as TileLayer } from "ol/layer";
 import { XYZ } from "ol/source";
@@ -71,6 +71,10 @@ export default function useMap() {
     view.animate({ zoom: view.getZoom() - 1 });
   };
 
+  const getZoomLevel = computed(() => {
+    return map.value.getView().getZoom();
+  });
+
   return {
     map,
     initializeMap,
@@ -80,5 +84,6 @@ export default function useMap() {
     setCenterWithoutEasing,
     zoomIn,
     zoomOut,
+    getZoomLevel,
   };
 }

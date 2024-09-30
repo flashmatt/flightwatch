@@ -16,9 +16,17 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  symbol: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
 });
 
 const airlineLogoUrl = computed(() => {
+  if (props.symbol) {
+    return `/logos/airline_symbol/${props.icaoCode}.svg`;
+  }
   return `/logos/airline/${props.icaoCode}.svg`;
 });
 </script>

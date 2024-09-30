@@ -4,6 +4,7 @@ import Aircraft from "../models/Aircraft.js";
 
 export default function useAdsbData(currentCenter, updateAircraftData) {
   const isFetching = ref(false);
+  let fetchTimeoutId = null; // Store the timeout ID
 
   const fetchAdsbData = async () => {
     isFetching.value = true;
@@ -19,7 +20,22 @@ export default function useAdsbData(currentCenter, updateAircraftData) {
       console.error("Error fetching data:", error);
     } finally {
       isFetching.value = false;
-      setTimeout(fetchAdsbData, 1500);
+      fetchTimeoutId = setTimeout(fetchAdsbData, 1500); // Store the timeout ID
+    }
+  };
+
+  const stopFetching = () => {
+    if (fetchTimeoutId) {
+      clearTimeout(fetchTimeoutId); // Clear the timeout
+      fetchTimeoutId = null;
+    }
+  };
+
+  // Remove fetchIntervalId and related code
+  const startFetching = () => {
+    console.log("Starting fetch");
+    if (!fetchTimeoutId) {
+      fetchAdsbData(); // Fetch immediately on start
     }
   };
 
@@ -34,7 +50,8 @@ export default function useAdsbData(currentCenter, updateAircraftData) {
   };
 
   return {
-    fetchAdsbData,
+    stopFetching, // Export the stopFetching function
     isFetching,
+    startFetching, // Export the start
   };
 }
