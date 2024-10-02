@@ -125,6 +125,10 @@ export default class Aircraft {
     return (heading * Math.PI) / 180;
   }
 
+  getRoundedRotation() {
+    return Math.round(this.getRotation() * 100) / 100;
+  }
+
   getAltitude() {
     if (this.altGeom !== null && this.altGeom !== undefined) {
       return this.altGeom;

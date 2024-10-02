@@ -7,6 +7,7 @@ import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
 
 const map = ref(null);
+const zoomLevel = ref(0);
 export default function useMap() {
   const currentCenter = ref({ lat: 0, lon: 0 });
 
@@ -47,6 +48,12 @@ export default function useMap() {
         currentCenter.value = { lat, lon };
       });
 
+      zoomLevel.value = map.value.getView().getZoom();
+
+      map.value.getView().on("change:resolution", () => {
+        zoomLevel.value = map.value.getView().getZoom();
+      });
+
       resolve();
     });
   };
@@ -72,7 +79,7 @@ export default function useMap() {
   };
 
   const getZoomLevel = computed(() => {
-    return map.value.getView().getZoom();
+    return zoomLevel.value;
   });
 
   return {

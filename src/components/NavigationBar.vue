@@ -18,7 +18,7 @@
           C3.37,16.212,12.201,23.759,12.201,23.759z"
         />
       </svg>
-      <span class="text-white font-medium text-2xl">FLIGHTWATCH</span>
+      <span class="text-white font-medium text-2xl">FLIGHTMAPPERS</span>
     </div>
 
     <div class="max-md:hidden flex items-center space-x-4 px-4">

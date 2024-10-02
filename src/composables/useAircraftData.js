@@ -1,4 +1,4 @@
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import axios from "axios";
 import { Feature } from "ol";
 import { Point } from "ol/geom";
@@ -22,7 +22,7 @@ const followAircraft = ref(false);
 
 export default function useAircraftData(vectorSource) {
   const { getSvgFromAircraft } = useSprites();
-  const { setCenterWithoutEasing: setCenter } = useMap();
+  const { setCenterWithoutEasing: setCenter, getZoomLevel } = useMap();
   const { mapSettings } = useMapSettings();
 
   const aircraftFeatures = new Map();
@@ -56,7 +56,9 @@ export default function useAircraftData(vectorSource) {
   };
 
   const getCachedStyle = (aircraft, iconImage) => {
-    const key = `${aircraft.flight || ""}-${aircraft.hex}-${aircraft.aircraftType}-${iconImage.getRotation()}-${mapSettings.showFlightNumbers}-${mapSettings.showAirlineLogos}`;
+    const zoomLevel = Math.floor(getZoomLevel.value);
+    console.log(zoomLevel);
+    const key = `${aircraft.flight || ""}-${aircraft.hex}-${aircraft.aircraftType}-${iconImage.getRotation()}-${mapSettings.showFlightNumbers}-${mapSettings.showAirlineLogos}-${zoomLevel}`;
 
     if (!styleCache[key]) {
       const styles = [
@@ -66,21 +68,21 @@ export default function useAircraftData(vectorSource) {
       ];
 
       // Conditionally add flight number as text
-      if (aircraft.flight && mapSettings.showFlightNumbers) {
+      if (aircraft.flight && mapSettings.showFlightNumbers && zoomLevel >= 8) {
         styles.push(
           new Style({
             text: new Text({
               text: aircraft.flight,
               offsetY: -30, // Position above the icon
               font: "12px Calibri,sans-serif",
-              fill: new Fill({ color: "#fff" }), // Optional: Add stroke for better visibility
+              fill: new Fill({ color: "#fff" }),
             }),
           }),
         );
       }
 
       // Conditionally add airline logo
-      if (mapSettings.showAirlineLogos) {
+      if (mapSettings.showAirlineLogos && zoomLevel >= 8) {
         const airlineCode = aircraft.getPotentialAirlineCode();
         if (airlineCode) {
           const airlineLogoSrc = getCachedAirlineLogoSrc(airlineCode);
@@ -246,13 +248,13 @@ export default function useAircraftData(vectorSource) {
       // Update rotation
       const iconImage = feature.get("iconImage");
       if (iconImage) {
-        iconImage.setRotation(aircraft.getRotation());
+        iconImage.setRotation(aircraft.getRoundedRotation());
       }
 
       // Update style if necessary
       const newIconImage = getCachedIcon(
         aircraft.aircraftType,
-        aircraft.getRotation(),
+        aircraft.getRoundedRotation(),
       );
       feature.set("iconImage", newIconImage);
 
@@ -286,7 +288,7 @@ export default function useAircraftData(vectorSource) {
 
       const iconImage = getCachedIcon(
         aircraft.aircraftType,
-        aircraft.getRotation(),
+        aircraft.getRoundedRotation(),
       );
       feature.set("iconImage", iconImage);
 
@@ -363,6 +365,15 @@ export default function useAircraftData(vectorSource) {
   const stopFollowingAircraft = () => {
     followAircraft.value = false;
   };
+
+  watch(getZoomLevel, () => {
+    aircraftFeatures.forEach((feature) => {
+      const aircraft = feature.get("meta");
+      const iconImage = feature.get("iconImage");
+      const styles = getCachedStyle(aircraft, iconImage);
+      feature.setStyle(styles);
+    });
+  });
 
   const isAircraftSelected = computed(() => aircraftSelected.value);
   const getSelectedAircraft = computed(() => selectedAircraft.value);
