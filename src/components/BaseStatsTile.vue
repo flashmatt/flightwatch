@@ -2,7 +2,6 @@
   <div class="flex flex-col px-4 py-2">
     <span class="font-light text-neutral-600 text-sm">{{ label }}</span>
     <div class="relative overflow-hidden h-6">
-      <!-- Use Tailwind for layout -->
       <span
         class="inline-block relative transition-transform duration-800 ease-out"
         ref="odometer"

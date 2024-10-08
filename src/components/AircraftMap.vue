@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount } from "vue";
+import { onMounted, onBeforeUnmount, ref } from "vue";
 import useMap from "../composables/useMap";
 import useGeolocation from "../composables/useGeolocation";
 import useAdsbData from "../composables/useAdsbData";
@@ -16,12 +16,14 @@ const { map, initializeMap, currentCenter, vectorSource } = useMap();
 
 const { initializeGeolocation } = useGeolocation(map, vectorSource);
 
+const hoveredAircraftHex = ref(null);
+
 const {
   createOrUpdateAircraftFeature,
   removeStaleAircraftFeatures,
   selectAircraft,
   deselectAircraft,
-} = useAircraftData(vectorSource);
+} = useAircraftData(vectorSource, hoveredAircraftHex);
 
 const updateAircraftData = (newData) => {
   const newAircraftHexes = new Set();
@@ -53,6 +55,28 @@ const handleMapClick = (event) => {
   }
 };
 
+const handlePointerMove = (event) => {
+  const pixel = map.value.getEventPixel(event.originalEvent);
+  let featureFound = false;
+
+  map.value.forEachFeatureAtPixel(
+    pixel,
+    (feature) => {
+      const aircraft = feature.get("meta");
+      hoveredAircraftHex.value = aircraft.hex;
+      featureFound = true;
+      return true; // Stop iteration after finding the first feature
+    },
+    {
+      hitTolerance: 10,
+    },
+  );
+
+  if (!featureFound) {
+    hoveredAircraftHex.value = null;
+  }
+};
+
 onMounted(async () => {
   const initialCenter = { lat: 54.576459, lon: -1.246257 };
 
@@ -62,6 +86,8 @@ onMounted(async () => {
   startFetching(); // Start the fetch loop
 
   map.value.on("click", handleMapClick);
+
+  map.value.on("pointermove", handlePointerMove);
 });
 
 onBeforeUnmount(() => {

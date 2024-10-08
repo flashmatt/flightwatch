@@ -1,5 +1,3 @@
-// src/composables/useMapSettings.js
-
 import { reactive } from "vue";
 
 const mapSettings = reactive({
