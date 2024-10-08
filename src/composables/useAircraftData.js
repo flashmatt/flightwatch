@@ -20,94 +20,83 @@ const aircraftSelected = ref(false);
 const routeSet = ref([]);
 const followAircraft = ref(false);
 
-export default function useAircraftData(vectorSource) {
+export default function useAircraftData(vectorSource, hoveredAircraftHex) {
   const { getSvgFromAircraft } = useSprites();
   const { setCenterWithoutEasing: setCenter, getZoomLevel } = useMap();
   const { mapSettings } = useMapSettings();
 
   const aircraftFeatures = new Map();
 
-  // Caches
-  const iconCache = {};
-  const styleCache = {};
-  const logoCache = {};
-
   let animationFrameId;
 
-  const getCachedIcon = (aircraftType, rotation) => {
-    const key = `${aircraftType}-${rotation}`;
-    if (!iconCache[key]) {
-      iconCache[key] = new Icon({
-        src: getSvgFromAircraft(aircraftType),
-        scale: 1,
-        rotation: rotation,
-      });
-    }
-    return iconCache[key];
+  const getIcon = (aircraftType, rotation) => {
+    return new Icon({
+      src: getSvgFromAircraft(aircraftType),
+      scale: 1,
+      rotation: rotation,
+    });
   };
 
-  const getCachedAirlineLogoSrc = (airlineCode) => {
+  const getAirlineLogoSrc = (airlineCode) => {
     if (!airlineCode) return null;
-    if (!logoCache[airlineCode]) {
-      const src = `/logos/airline_symbol/${airlineCode}.svg`;
-      logoCache[airlineCode] = src;
-    }
-    return logoCache[airlineCode];
+    return `/logos/airline_symbol/${airlineCode}.svg`;
   };
 
-  const getCachedStyle = (aircraft, iconImage) => {
+  const getStyle = (aircraft, iconImage, isHovered) => {
     const zoomLevel = Math.floor(getZoomLevel.value);
-    console.log(zoomLevel);
-    const key = `${aircraft.flight || ""}-${aircraft.hex}-${aircraft.aircraftType}-${iconImage.getRotation()}-${mapSettings.showFlightNumbers}-${mapSettings.showAirlineLogos}-${zoomLevel}`;
 
-    if (!styleCache[key]) {
-      const styles = [
+    const styles = [
+      new Style({
+        image: iconImage,
+      }),
+    ];
+
+    const showDetails = zoomLevel >= 8 || isHovered;
+
+    // Conditionally add flight number as text
+    if (aircraft.flight && mapSettings.showFlightNumbers && showDetails) {
+      styles.push(
         new Style({
-          image: iconImage,
-        }),
-      ];
-
-      // Conditionally add flight number as text
-      if (aircraft.flight && mapSettings.showFlightNumbers && zoomLevel >= 8) {
-        styles.push(
-          new Style({
-            text: new Text({
-              text: aircraft.flight,
-              offsetY: -30, // Position above the icon
-              font: "12px Calibri,sans-serif",
-              fill: new Fill({ color: "#fff" }),
-            }),
+          text: new Text({
+            text: aircraft.flight,
+            offsetY: -30, // Position above the icon
+            font: "12px Calibri,sans-serif",
+            fill: new Fill({ color: "#fff" }),
           }),
-        );
-      }
+        }),
+      );
+    }
 
-      // Conditionally add airline logo
-      if (mapSettings.showAirlineLogos && zoomLevel >= 8) {
-        const airlineCode = aircraft.getPotentialAirlineCode();
-        if (airlineCode) {
-          const airlineLogoSrc = getCachedAirlineLogoSrc(airlineCode);
-          if (airlineLogoSrc) {
-            styles.push(
-              new Style({
-                image: new Icon({
-                  src: airlineLogoSrc,
-                  width: 25,
-                  preserveAspectRatio: true,
-                  displacement: [-45, 30], // Position
-                }),
-                zIndex: 30,
+    // Conditionally add airline logo
+    if (mapSettings.showAirlineLogos && showDetails) {
+      const airlineCode = aircraft.getPotentialAirlineCode();
+      if (airlineCode) {
+        const airlineLogoSrc = getAirlineLogoSrc(airlineCode);
+        if (airlineLogoSrc) {
+          styles.push(
+            new Style({
+              image: new Icon({
+                src: airlineLogoSrc,
+                width: 25,
+                preserveAspectRatio: true,
+                displacement: [-45, 30], // Position
               }),
-            );
-          }
+              zIndex: 30,
+            }),
+          );
         }
       }
-
-      styleCache[key] = styles;
     }
-    return styleCache[key];
+
+    return styles;
   };
 
   const startPulsingAnimation = (feature) => {
+    if (feature.get("isPulsing")) {
+      return;
+    }
+
+    feature.set("isPulsing", true);
     feature.set("startTime", Date.now());
 
     let ringStroke = new Stroke({
@@ -140,6 +129,7 @@ export default function useAircraftData(vectorSource) {
 
   const stopPulsingAnimation = (feature) => {
     feature.unset("startTime");
+    feature.unset("isPulsing");
 
     // Remove ringStyle from feature's styles
     const styles = feature.getStyle();
@@ -246,19 +236,13 @@ export default function useAircraftData(vectorSource) {
       feature.set("newCoords", newCoords);
 
       // Update rotation
-      const iconImage = feature.get("iconImage");
-      if (iconImage) {
-        iconImage.setRotation(aircraft.getRoundedRotation());
-      }
-
-      // Update style if necessary
-      const newIconImage = getCachedIcon(
+      const newIconImage = getIcon(
         aircraft.aircraftType,
         aircraft.getRoundedRotation(),
       );
       feature.set("iconImage", newIconImage);
 
-      const styles = getCachedStyle(aircraft, newIconImage);
+      const styles = getStyle(aircraft, newIconImage);
 
       // Preserve ringStyle if it exists
       const ringStyle = feature.get("ringStyle");
@@ -286,13 +270,13 @@ export default function useAircraftData(vectorSource) {
         meta: aircraft,
       });
 
-      const iconImage = getCachedIcon(
+      const iconImage = getIcon(
         aircraft.aircraftType,
         aircraft.getRoundedRotation(),
       );
       feature.set("iconImage", iconImage);
 
-      const styles = getCachedStyle(aircraft, iconImage);
+      const styles = getStyle(aircraft, iconImage);
       feature.setStyle(styles);
 
       vectorSource.addFeature(feature);
@@ -370,7 +354,7 @@ export default function useAircraftData(vectorSource) {
     aircraftFeatures.forEach((feature) => {
       const aircraft = feature.get("meta");
       const iconImage = feature.get("iconImage");
-      const styles = getCachedStyle(aircraft, iconImage);
+      const styles = getStyle(aircraft, iconImage);
       feature.setStyle(styles);
     });
   });
