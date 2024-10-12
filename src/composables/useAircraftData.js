@@ -37,10 +37,21 @@ export default function useAircraftData(vectorSource, hoveredAircraftHex) {
     });
   };
 
+  const logoCache = new Map();
+
   const getAirlineLogoSrc = (airlineCode) => {
     if (!airlineCode) return null;
-    return `/logos/airline_symbol/${airlineCode}.svg`;
+
+    if (logoCache.has(airlineCode)) {
+      // Return cached logo URL
+      return logoCache.get(airlineCode);
+    }
+
+    const logoUrl = `/logos/airline_symbol/${airlineCode}.svg`;
+    logoCache.set(airlineCode, logoUrl); // Cache it
+    return logoUrl;
   };
+
 
   const getStyle = (aircraft, iconImage, isHovered) => {
     const zoomLevel = Math.floor(getZoomLevel.value);
