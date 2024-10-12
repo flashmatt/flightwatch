@@ -42,7 +42,7 @@
 import { ref, watch } from "vue";
 
 const props = defineProps({
-  icaoCode: {
+  reg: {
     type: String,
     required: true,
   },
@@ -63,7 +63,7 @@ const fetchPhoto = async () => {
 
   try {
     const response = await fetch(
-      `https://api.planespotters.net/pub/photos/hex/${props.icaoCode}`,
+      `https://api.planespotters.net/pub/photos/reg/${props.reg}`,
     );
     const data = await response.json();
 
@@ -82,7 +82,7 @@ const fetchPhoto = async () => {
 };
 
 watch(
-  () => props.icaoCode,
+  () => props.reg,
   () => {
     fetchPhoto();
   },

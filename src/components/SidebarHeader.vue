@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      <planespotters-photo :icao-code="aircraft.hex || ''" />
+      <planespotters-photo :reg="aircraft.registration || ''" />
     </div>
     <div>
       <div
