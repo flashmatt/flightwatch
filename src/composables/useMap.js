@@ -5,6 +5,7 @@ import { XYZ } from "ol/source";
 import { fromLonLat, toLonLat } from "ol/proj";
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
+import useWeatherLayer from "./useWeatherLayer.js";
 
 const map = ref(null);
 const zoomLevel = ref(0);
@@ -72,7 +73,10 @@ export default function useMap() {
     source: vectorSource,
     updateWhileAnimating: true,
     updateWhileInteracting: true,
+    zIndex: 100,
   });
+
+  const { radarTimestamp, satellitePath, weatherLayers, getWeatherSnapshot, createWeatherLayer, addWeatherLayerToMap } = useWeatherLayer();
 
   const initializeMap = (
     targetId,
@@ -81,6 +85,7 @@ export default function useMap() {
     baseLayerName = "DarkGray",
   ) => {
     return new Promise((resolve) => {
+
       map.value = new Map({
         target: targetId,
         controls: [],
@@ -89,6 +94,11 @@ export default function useMap() {
           center: fromLonLat([initialCenter.lon, initialCenter.lat]),
           zoom: initialZoom,
         }),
+      });
+
+      getWeatherSnapshot().then(() => {
+        addWeatherLayerToMap(map.value, 'radar', radarTimestamp.value);
+        addWeatherLayerToMap(map.value, "satellite", satellitePath.value);
       });
 
       currentCenter.value = initialCenter;

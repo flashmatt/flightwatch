@@ -86,6 +86,18 @@
             </div>
           </div>
         </AccordionSection>
+        <accordion-section title="Weather" :isOpen="openAccordion === 'weather'" @toggle="handleAccordionToggle('weather')">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <label for="show-weather">Rain Radar</label>
+              <input type="checkbox" id="show-weather" v-model="mapSettings.showRainRadar" />
+            </div>
+            <div class="flex items-center justify-between">
+              <label for="show-weather-radar">Cloud Cover</label>
+              <input type="checkbox" id="show-weather-radar" v-model="mapSettings.showCloudSatellite" />
+            </div>
+          </div>
+        </accordion-section>
       </div>
     </div>
   </div>
@@ -123,18 +135,6 @@ const toggleSettings = () => {
 const handleAccordionToggle = (section) => {
   openAccordion.value = openAccordion.value === section ? null : section;
 };
-
-// Watch for changes to the darkenOpacity and apply the effect to the map
-watch(
-  () => mapSettings.darkenOpacity,
-  (newOpacity) => {
-    // Ensure that the newOpacity is always a number
-    const numericOpacity = parseFloat(newOpacity);
-    if (!isNaN(numericOpacity) && numericOpacity >= 0 && numericOpacity <= 1) {
-      applyDarkenLayer(numericOpacity);
-    }
-  },
-);
 
 // Available map layers with preview images
 const availableBaseLayers = {
