@@ -5,16 +5,20 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from "vue";
+import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import useMap from "../composables/useMap";
 import useGeolocation from "../composables/useGeolocation";
 import useAdsbData from "../composables/useAdsbData";
 import useAircraftData from "../composables/useAircraftData.js";
 import MapControls from "./MapControls.vue";
+import useMapSettings from "../composables/useMapSettings.js";
+import useWeatherLayer from "../composables/useWeatherLayer.js";
 
 const { map, initializeMap, currentCenter, vectorSource } = useMap();
 
 const { initializeGeolocation } = useGeolocation(map, vectorSource);
+
+const { mapSettings } = useMapSettings();
 
 const hoveredAircraftHex = ref(null);
 
@@ -24,6 +28,9 @@ const {
   selectAircraft,
   deselectAircraft,
 } = useAircraftData(vectorSource, hoveredAircraftHex);
+
+const { radarTimestamp, satellitePath, getWeatherSnapshot,  addWeatherLayerToMap, removeWeatherLayerFromMap } = useWeatherLayer();
+
 
 const updateAircraftData = (newData) => {
   const newAircraftHexes = new Set();
@@ -85,6 +92,16 @@ onMounted(async () => {
 
   startFetching(); // Start the fetch loop
 
+  getWeatherSnapshot().then(() => {
+    if (mapSettings.showRainRadar) {
+      addWeatherLayerToMap(map.value, "radar", radarTimestamp.value);
+    }
+
+    if (mapSettings.showCloudSatellite) {
+      addWeatherLayerToMap(map.value, "satellite", satellitePath.value);
+    }
+  });
+
   map.value.on("click", handleMapClick);
 
   map.value.on("pointermove", handlePointerMove);
@@ -97,6 +114,28 @@ onBeforeUnmount(() => {
   }
   stopFetching(); // Stop the fetch loop when component unmounts
 });
+
+watch(
+  () => mapSettings.showRainRadar,
+  (newValue) => {
+    if (newValue) {
+      addWeatherLayerToMap(map.value, "radar", radarTimestamp.value);
+    } else {
+      removeWeatherLayerFromMap(map.value, "radar");
+    }
+  },
+);
+
+watch(
+  () => mapSettings.showCloudSatellite,
+  (newValue) => {
+    if (newValue) {
+      addWeatherLayerToMap(map.value, "satellite", satellitePath.value);
+    } else {
+      removeWeatherLayerFromMap(map.value, "satellite");
+    }
+  },
+);
 </script>
 
 <style scoped>

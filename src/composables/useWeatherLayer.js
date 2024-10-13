@@ -6,6 +6,10 @@ export default function useWeatherLayer() {
   const radarTimestamp = ref(0);
   const satellitePath = ref("");
 
+  // References to the actual radar and satellite layers
+  const radarLayer = ref(null);
+  const satelliteLayer = ref(null);
+
   const getWeatherSnapshot = async () => {
     try {
       const response = await fetch("https://api.rainviewer.com/public/weather-maps.json");
@@ -38,9 +42,9 @@ export default function useWeatherLayer() {
     let urlTemplate = "";
 
     if (type === "radar") {
-      urlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timeOrPath}/512/{z}/{x}/{y}/4/1_1.png`;
+      urlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timeOrPath}/256/{z}/{x}/{y}/4/1_1.png`;
     } else if (type === "satellite") {
-      urlTemplate = `https://tilecache.rainviewer.com${timeOrPath}/512/{z}/{x}/{y}/0/0_0.png`; // Use the full path for satellite
+      urlTemplate = `https://tilecache.rainviewer.com${timeOrPath}/256/{z}/{x}/{y}/0/0_0.png`; // Use the full path for satellite
     }
 
     return new TileLayer({
@@ -48,21 +52,47 @@ export default function useWeatherLayer() {
         url: urlTemplate,
         attributions: '&copy; <a href="https://www.rainviewer.com">RainViewer</a>',
       }),
-      opacity: type === "radar" ? 0.3 : 0.4, // Different opacity for radar vs satellite if needed
+      opacity: type === "radar" ? 0.2 : 0.3, // Different opacity for radar vs satellite if needed
     });
   };
 
   const addWeatherLayerToMap = (map, type, timeOrPath) => {
     const weatherLayer = createWeatherLayer(type, timeOrPath);
+
+    if (type === "radar") {
+      if (radarLayer.value) {
+        map.removeLayer(radarLayer.value);
+      }
+      radarLayer.value = weatherLayer;
+    } else if (type === "satellite") {
+      if (satelliteLayer.value) {
+        map.removeLayer(satelliteLayer.value);
+      }
+      satelliteLayer.value = weatherLayer;
+    }
+
     map.addLayer(weatherLayer);
     return weatherLayer;
+  };
+
+  const removeWeatherLayerFromMap = (map, type) => {
+    if (type === "radar" && radarLayer.value) {
+      map.removeLayer(radarLayer.value);
+      radarLayer.value = null; // Clear the reference
+    } else if (type === "satellite" && satelliteLayer.value) {
+      map.removeLayer(satelliteLayer.value);
+      satelliteLayer.value = null; // Clear the reference
+    }
   };
 
   return {
     radarTimestamp,
     satellitePath,
+    radarLayer,
+    satelliteLayer,
     getWeatherSnapshot,
     createWeatherLayer,
     addWeatherLayerToMap,
+    removeWeatherLayerFromMap,
   };
 }
