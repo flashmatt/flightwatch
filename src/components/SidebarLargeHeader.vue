@@ -6,7 +6,10 @@
   >
     <div class="w-12 h-1.5 bg-gray-300 rounded-full mt-2 z-10"></div>
   </div>
-  <planespotters-photo :reg="aircraft.registration || ''" :expanded="isExpanded" />
+  <planespotters-photo
+    :reg="aircraft.registration || ''"
+    :expanded="isExpanded"
+  />
   <div
     class="grid grid-cols-3 divide-x divide-solid divide-neutral-300 bg-white sticky top-0 mb-4 shadow-lg z-10 max-h-16 border-b border-neutral-300"
   >

@@ -12,7 +12,9 @@ export default function useWeatherLayer() {
 
   const getWeatherSnapshot = async () => {
     try {
-      const response = await fetch("https://api.rainviewer.com/public/weather-maps.json");
+      const response = await fetch(
+        "https://api.rainviewer.com/public/weather-maps.json",
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch weather data");
       }
@@ -27,8 +29,13 @@ export default function useWeatherLayer() {
       }
 
       // Get the latest available path for satellite
-      if (data.satellite && data.satellite.infrared && data.satellite.infrared.length > 0) {
-        const latestSatellite = data.satellite.infrared[data.satellite.infrared.length - 1];
+      if (
+        data.satellite &&
+        data.satellite.infrared &&
+        data.satellite.infrared.length > 0
+      ) {
+        const latestSatellite =
+          data.satellite.infrared[data.satellite.infrared.length - 1];
         satellitePath.value = latestSatellite.path; // Use the provided path directly
       } else {
         throw new Error("No satellite data available");
@@ -50,7 +57,8 @@ export default function useWeatherLayer() {
     return new TileLayer({
       source: new XYZ({
         url: urlTemplate,
-        attributions: '&copy; <a href="https://www.rainviewer.com">RainViewer</a>',
+        attributions:
+          '&copy; <a href="https://www.rainviewer.com">RainViewer</a>',
       }),
       opacity: type === "radar" ? 0.2 : 0.3, // Different opacity for radar vs satellite if needed
     });

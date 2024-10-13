@@ -20,7 +20,7 @@ const aircraftSelected = ref(false);
 const routeSet = ref([]);
 const followAircraft = ref(false);
 
-export default function useAircraftData(vectorSource, hoveredAircraftHex) {
+export default function useAircraftData(vectorSource) {
   const { getSvgFromAircraft } = useSprites();
   const { setCenterWithoutEasing: setCenter, getZoomLevel } = useMap();
   const { mapSettings } = useMapSettings();
@@ -51,7 +51,6 @@ export default function useAircraftData(vectorSource, hoveredAircraftHex) {
     logoCache.set(airlineCode, logoUrl); // Cache it
     return logoUrl;
   };
-
 
   const getStyle = (aircraft, iconImage, isHovered) => {
     const zoomLevel = Math.floor(getZoomLevel.value);

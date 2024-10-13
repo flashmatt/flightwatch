@@ -29,8 +29,13 @@ const {
   deselectAircraft,
 } = useAircraftData(vectorSource, hoveredAircraftHex);
 
-const { radarTimestamp, satellitePath, getWeatherSnapshot,  addWeatherLayerToMap, removeWeatherLayerFromMap } = useWeatherLayer();
-
+const {
+  radarTimestamp,
+  satellitePath,
+  getWeatherSnapshot,
+  addWeatherLayerToMap,
+  removeWeatherLayerFromMap,
+} = useWeatherLayer();
 
 const updateAircraftData = (newData) => {
   const newAircraftHexes = new Set();

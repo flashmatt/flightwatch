@@ -86,15 +86,27 @@
             </div>
           </div>
         </AccordionSection>
-        <accordion-section title="Weather" :isOpen="openAccordion === 'weather'" @toggle="handleAccordionToggle('weather')">
+        <accordion-section
+          title="Weather"
+          :isOpen="openAccordion === 'weather'"
+          @toggle="handleAccordionToggle('weather')"
+        >
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <label for="show-weather">Rain Radar</label>
-              <input type="checkbox" id="show-weather" v-model="mapSettings.showRainRadar" />
+              <input
+                type="checkbox"
+                id="show-weather"
+                v-model="mapSettings.showRainRadar"
+              />
             </div>
             <div class="flex items-center justify-between">
               <label for="show-weather-radar">Cloud Cover</label>
-              <input type="checkbox" id="show-weather-radar" v-model="mapSettings.showCloudSatellite" />
+              <input
+                type="checkbox"
+                id="show-weather-radar"
+                v-model="mapSettings.showCloudSatellite"
+              />
             </div>
           </div>
         </accordion-section>
@@ -110,9 +122,9 @@ import useMap from "../composables/useMap.js";
 import useGeolocation from "../composables/useGeolocation.js";
 import useAircraftData from "../composables/useAircraftData.js";
 import useMapSettings from "../composables/useMapSettings.js";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 
-const { zoomIn, zoomOut, setCenter, setBaseLayer, applyDarkenLayer } = useMap();
+const { zoomIn, zoomOut, setCenter, setBaseLayer } = useMap();
 const { getGeolocation } = useGeolocation();
 const { stopFollowingAircraft } = useAircraftData();
 const { mapSettings } = useMapSettings();

@@ -5,8 +5,6 @@ import { XYZ } from "ol/source";
 import { fromLonLat, toLonLat } from "ol/proj";
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
-import useWeatherLayer from "./useWeatherLayer.js";
-import useMapSettings from "./useMapSettings.js";
 
 const map = ref(null);
 const zoomLevel = ref(0);
@@ -67,7 +65,6 @@ const baseLayers = {
 };
 
 export default function useMap() {
-  const {mapSettings} = useMapSettings();
   const currentCenter = ref({ lat: 0, lon: 0 });
 
   const vectorSource = new VectorSource();
@@ -85,7 +82,6 @@ export default function useMap() {
     baseLayerName = "DarkGray",
   ) => {
     return new Promise((resolve) => {
-
       map.value = new Map({
         target: targetId,
         controls: [],
