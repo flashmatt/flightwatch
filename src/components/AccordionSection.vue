@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
 const props = defineProps({
   title: {
@@ -41,6 +41,7 @@ const isOpen = ref(props.defaultOpen);
 const contentHeight = ref("0px");
 const content = ref(null);
 const innerContent = ref(null);
+let observer = null;
 
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
@@ -55,12 +56,26 @@ const updateHeight = () => {
   }
 };
 
-watch(isOpen, () => {
-  updateHeight();
-});
-
 onMounted(() => {
   updateHeight();
+
+  // Set up the MutationObserver to watch for content changes
+  observer = new MutationObserver(() => {
+    updateHeight();
+  });
+
+  if (innerContent.value) {
+    observer.observe(innerContent.value, {
+      childList: true, // Watch for added or removed children
+      subtree: true, // Watch all descendants
+    });
+  }
+});
+
+onBeforeUnmount(() => {
+  if (observer) {
+    observer.disconnect(); // Clean up the observer
+  }
 });
 </script>
 

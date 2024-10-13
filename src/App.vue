@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-screen w-screen">
+  <div class="relative h-dvh w-screen">
     <navigation-bar />
     <aircraft-map />
     <aircraft-sidebar />

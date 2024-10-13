@@ -45,13 +45,13 @@ export default function useWeatherLayer() {
     }
   };
 
-  const createWeatherLayer = (type, timeOrPath) => {
+  const createWeatherLayer = (type, timeOrPath, opacity) => {
     let urlTemplate = "";
 
     if (type === "radar") {
       urlTemplate = `https://tilecache.rainviewer.com/v2/radar/${timeOrPath}/256/{z}/{x}/{y}/4/1_1.png`;
     } else if (type === "satellite") {
-      urlTemplate = `https://tilecache.rainviewer.com${timeOrPath}/256/{z}/{x}/{y}/0/0_0.png`; // Use the full path for satellite
+      urlTemplate = `https://tilecache.rainviewer.com${timeOrPath}/256/{z}/{x}/{y}/0/0_0.png`;
     }
 
     return new TileLayer({
@@ -60,12 +60,11 @@ export default function useWeatherLayer() {
         attributions:
           '&copy; <a href="https://www.rainviewer.com">RainViewer</a>',
       }),
-      opacity: type === "radar" ? 0.2 : 0.3, // Different opacity for radar vs satellite if needed
+      opacity: opacity, // Use the opacity provided from settings
     });
   };
-
-  const addWeatherLayerToMap = (map, type, timeOrPath) => {
-    const weatherLayer = createWeatherLayer(type, timeOrPath);
+  const addWeatherLayerToMap = (map, type, timeOrPath, opacity) => {
+    const weatherLayer = createWeatherLayer(type, timeOrPath, opacity);
 
     if (type === "radar") {
       if (radarLayer.value) {
@@ -82,7 +81,6 @@ export default function useWeatherLayer() {
     map.addLayer(weatherLayer);
     return weatherLayer;
   };
-
   const removeWeatherLayerFromMap = (map, type) => {
     if (type === "radar" && radarLayer.value) {
       map.removeLayer(radarLayer.value);

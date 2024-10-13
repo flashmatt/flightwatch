@@ -100,12 +100,40 @@
                 v-model="mapSettings.showRainRadar"
               />
             </div>
+            <div
+              v-if="mapSettings.showRainRadar"
+              class="flex items-center justify-between"
+            >
+              <label for="radar-opacity">Radar Opacity</label>
+              <input
+                type="range"
+                id="radar-opacity"
+                v-model.number="mapSettings.radarOpacity"
+                min="0"
+                max="1"
+                step="0.1"
+              />
+            </div>
             <div class="flex items-center justify-between">
               <label for="show-weather-radar">Cloud Cover</label>
               <input
                 type="checkbox"
                 id="show-weather-radar"
                 v-model="mapSettings.showCloudSatellite"
+              />
+            </div>
+            <div
+              v-if="mapSettings.showCloudSatellite"
+              class="flex items-center justify-between"
+            >
+              <label for="satellite-opacity">Satellite Opacity</label>
+              <input
+                type="range"
+                id="satellite-opacity"
+                v-model.number="mapSettings.satelliteOpacity"
+                min="0"
+                max="1"
+                step="0.1"
               />
             </div>
           </div>

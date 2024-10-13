@@ -35,6 +35,8 @@ const {
   getWeatherSnapshot,
   addWeatherLayerToMap,
   removeWeatherLayerFromMap,
+  radarLayer,
+  satelliteLayer,
 } = useWeatherLayer();
 
 const updateAircraftData = (newData) => {
@@ -99,11 +101,21 @@ onMounted(async () => {
 
   getWeatherSnapshot().then(() => {
     if (mapSettings.showRainRadar) {
-      addWeatherLayerToMap(map.value, "radar", radarTimestamp.value);
+      addWeatherLayerToMap(
+        map.value,
+        "radar",
+        radarTimestamp.value,
+        mapSettings.radarOpacity,
+      );
     }
 
     if (mapSettings.showCloudSatellite) {
-      addWeatherLayerToMap(map.value, "satellite", satellitePath.value);
+      addWeatherLayerToMap(
+        map.value,
+        "satellite",
+        satellitePath.value,
+        mapSettings.satelliteOpacity,
+      );
     }
   });
 
@@ -124,7 +136,12 @@ watch(
   () => mapSettings.showRainRadar,
   (newValue) => {
     if (newValue) {
-      addWeatherLayerToMap(map.value, "radar", radarTimestamp.value);
+      addWeatherLayerToMap(
+        map.value,
+        "radar",
+        radarTimestamp.value,
+        mapSettings.radarOpacity,
+      );
     } else {
       removeWeatherLayerFromMap(map.value, "radar");
     }
@@ -135,9 +152,32 @@ watch(
   () => mapSettings.showCloudSatellite,
   (newValue) => {
     if (newValue) {
-      addWeatherLayerToMap(map.value, "satellite", satellitePath.value);
+      addWeatherLayerToMap(
+        map.value,
+        "satellite",
+        satellitePath.value,
+        mapSettings.satelliteOpacity,
+      );
     } else {
       removeWeatherLayerFromMap(map.value, "satellite");
+    }
+  },
+);
+
+watch(
+  () => mapSettings.radarOpacity,
+  (newOpacity) => {
+    if (radarLayer.value) {
+      radarLayer.value.setOpacity(newOpacity);
+    }
+  },
+);
+
+watch(
+  () => mapSettings.satelliteOpacity,
+  (newOpacity) => {
+    if (satelliteLayer.value) {
+      satelliteLayer.value.setOpacity(newOpacity);
     }
   },
 );
